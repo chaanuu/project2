@@ -6,7 +6,7 @@ int main()
 
 	//BOX
 	tui::box main_box({ {0,0}, {100,100} });
-	main_box.setTitle("TUI test for Project");
+	main_box.setTitle("POS project from B03");
 	main_box.setTitlePosition(tui::POSITION::END);
 
 	//TABS
@@ -35,17 +35,28 @@ int main()
 	order_box.setTitle("Order Box");
 	order_box.setTitlePosition(tui::POSITION::CENTER);
 
-	//TEXT
-	tui::text text({ {0,0}, {100,100} });
-	text.setPositionInfo({ {5,3}, {0,0}, {tui::POSITION::BEGIN, tui::POSITION::BEGIN} });
+	//Text in order Box
+	tui::text textInBox({ {0,0}, {28,85} });
+	textInBox.setPositionInfo({ {0,0}, {70,6}});
 	tui::symbol_string str;
-	//for (char i = 33; i < 127; i++) { str.push_back(i); }
 	str = "Iced Americano\t2.0\n\n";
 	str += "Iced CaffeLatte\t2.5\n\n";
 	str += "Iced CaffeMocha\t2.8\n\n";
 	str += "Strawberry Smoothie\t4.0\n\n";
 	str += "아이스 아메리카노\t4.0\n\n";
-	text.setText(str);
+	textInBox.setText(str);
+
+	//TEXT
+	tui::text text({ {0,0}, {100,100} });
+	text.setPositionInfo({ {5,3}, {0,0}, {tui::POSITION::BEGIN, tui::POSITION::BEGIN} });
+	tui::symbol_string str11;
+	//for (char i = 33; i < 127; i++) { str.push_back(i); }
+	str11 = "Iced Americano\t2.0\n\n";
+	str11 += "Iced CaffeLatte\t2.5\n\n";
+	str11 += "Iced CaffeMocha\t2.8\n\n";
+	str11 += "Strawberry Smoothie\t4.0\n\n";
+	str11 += "아이스 아메리카노\t4.0\n\n";
+	text.setText(str11);
 
 	//TEXT2
 	tui::text textA({ {0,0}, {20,20} });
@@ -57,9 +68,8 @@ int main()
 
 	//LIST
 	tui::list list({ {0,0}, {28,28} });
-	list.setPositionInfo({ {3,0}, {0,0}, {tui::POSITION::BEGIN, tui::POSITION::CENTER} });
+	list.setPositionInfo({ {0,0}, {3,6} });
 	list.setEntries({
-		// 공백 5칸 통일
 		{"Iced Americano    2.0", tui::CHECK_STATE::CHECKED}, {"Iced CaffeLatte     2.9", tui::CHECK_STATE::NOT_CHECKED}, {"a2"}, {"a3"}, {"a4"}, {"a5"},
 		{
 			"Iced", tui::CHECK_STATE::NONCHECKABLE, nullptr, nullptr, nullptr,
@@ -107,7 +117,9 @@ int main()
 		{
 		case 0:
 			tui::output::draw(order_box);
-			tui::output::draw(text);
+			tui::output::draw(textInBox);
+			tui::output::draw(list);
+			list.activate();
 			break;
 		case 1:
 			tui::output::draw(textA);
