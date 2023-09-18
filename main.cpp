@@ -1,4 +1,4 @@
-﻿#include "src/tui.h"
+﻿#include "TUI/tui.h"
 #include <cmath>
 
 int main()
@@ -24,11 +24,22 @@ int main()
 	tui::surface tabs_keys(t_desc);
 	tabs_keys.setPositionInfo({ {-1,0}, {0,0}, {tui::POSITION::END, tui::POSITION::END} });
 
+	//BOX for order list
+	tui::surface_size order_box_size (tui::vec2i(0, 0), tui::vec2f(30, 90));
+	tui::surface_position order_box_position(tui::vec2i(0, 0), tui::vec2f(68, 4));
+
+	tui::box order_box;
+	order_box.setAppearance(tui::box_appearance::thin_line);
+	order_box.setSizeInfo(order_box_size);
+	order_box.setPositionInfo(order_box_position);
+	order_box.setTitle("Order Box");
+	order_box.setTitlePosition(tui::POSITION::CENTER);
+
 	//TEXT
 	tui::text text({ {0,0}, {100,100} });
 	text.setPositionInfo({ {5,3}, {0,0}, {tui::POSITION::BEGIN, tui::POSITION::BEGIN} });
 	tui::symbol_string str;
-	for (char i = 33; i < 127; i++) { str.push_back(i); }
+	//for (char i = 33; i < 127; i++) { str.push_back(i); }
 	str = "Iced Americano\t2.0\n\n";
 	str += "Iced CaffeLatte\t2.5\n\n";
 	str += "Iced CaffeMocha\t2.8\n\n";
@@ -95,8 +106,8 @@ int main()
 		switch (tabs.getSelected())
 		{
 		case 0:
+			tui::output::draw(order_box);
 			tui::output::draw(text);
-			tui::output::draw(textA);
 			break;
 		case 1:
 			tui::output::draw(textA);
