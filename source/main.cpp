@@ -5,8 +5,8 @@
 
 int main()
 {
-	sell sellUI;
-	sellUI.setInterface();
+	Sell sell;
+	sell.makeMenuList();
 
 	//BOX
 	tui::box main_box({ {0,0}, {100,100} });
@@ -36,8 +36,6 @@ int main()
 	str2 = "In Construction....\n";
 	textA.setText(str2);
 
-	
-
 	//INPUT_TEXT
 	tui::input_text itxt({ {0,0}, {15,25} });
 	itxt.setPositionInfo({ {0,0}, {0,0}, {tui::POSITION::CENTER, tui::POSITION::CENTER} });
@@ -62,10 +60,7 @@ int main()
 		switch (tabs.getSelected())
 		{
 		case 0:
-			tui::output::draw(sellUI.order_box);
-			tui::output::draw(sellUI.list);
-			tui::output::draw(sellUI.textInBox);
-			sellUI.list.activate();
+			sell.draw_UI();
 			break;
 		case 1:
 			//tui::output::draw(textA);
