@@ -7,7 +7,6 @@
 #include <map>
 #include <tuple>
 #include <string>
-#include <stack>
 
 using namespace std;
 
@@ -38,13 +37,13 @@ public:
 		menuList.setPositionInfo({ {0,0}, {3,6} });
 		//menuList.setEntries({			});
 	}
-	
 };
 
 class Sell : Sell_UI {
 private:
 	fstream menuDB;
 	map<int, tuple<string, int>> menuMap; // id : key, value : tuple type (string, int)
+	map<int, unsigned int> orderBoxMap;
 
 public:
 	Sell() {
@@ -97,10 +96,11 @@ public:
 			string name = get<0>(i->second);
 			int price = get<1>(i->second);
 			int category = i->first / 1000;
-			
+
 			tui::symbol_string menuAndPrice = name + "   " + to_string(price);
 			tui::list_entry child_entry(menuAndPrice, tui::CHECK_STATE::NOT_CHECKED, nullptr, nullptr, nullptr);
-			
+			child_entry.setEntryID(i->first);
+
 			menuList.addEntry(child_entry);
 			/*
 			tui::list_entry parent_entry = menuList.getEntries()[category - 1];
@@ -121,6 +121,41 @@ public:
 			menuList.update();
 
 		}
+	}
+
+	void updateOrderBox() {
+		bool isFirstIndex = true;
+		int totalPrice = 0;
+
+		for(auto iter = orderBoxMap.begin(); iter != orderBoxMap.end(); iter++) {
+			string name = get<0>(menuMap.find(iter->first)->second);
+			tui::symbol_string currentLine = name + "  " + to_string(iter->second) + "\n";
+			totalPrice += get<1>(menuMap.find(iter->first)->second);
+			if (isFirstIndex) {
+				orderBoxText = currentLine;
+				isFirstIndex = false;
+			}
+			else {
+				orderBoxText += currentLine;
+			}
+		}
+		tui::symbol_string currentLine = "total : " + to_string(totalPrice) + "\n";
+		orderBoxText += "\n" + currentLine;
+
+		textInBox.setText(orderBoxText);
+	}
+
+	void addInOrderBox() {
+		int position = menuList.getCurrentPosition();
+		tui::list_entry currentEntry = this->menuList.getEntryAt(position);
+		int currentID = currentEntry.getMenuID();
+		if (orderBoxMap.find(currentID) != orderBoxMap.end()) {
+			orderBoxMap[currentID]++;
+		}
+		else {
+			orderBoxMap.insert({ currentID, 1 });
+		}
+		updateOrderBox();
 	}
 
 	void draw_UI() {

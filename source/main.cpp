@@ -61,6 +61,11 @@ int main()
 		{
 		case 0:
 			sell.draw_UI();
+			
+			if (tui::input::isKeyPressed(tui::input::KEY::INS)) {
+				sell.addInOrderBox();
+			}
+
 			break;
 		case 1:
 			//tui::output::draw(textA);

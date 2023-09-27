@@ -78,6 +78,7 @@ namespace tui
 		unsigned int top = 0;
 		bool extended = false;
 		bool ext_halt = false;
+		unsigned int menuID = 0;
 		void reset()
 		{
 			highlighted = 0;
@@ -112,6 +113,14 @@ namespace tui
 			uncheck_function(uncheck_function),
 			select_function(select_function),
 			nested_entries(nested_entries) {}
+
+		void setEntryID(int id) {
+			menuID = id;
+		}
+
+		int getMenuID() {
+			return menuID;
+		}
 	};
 
 	struct list : surface, active_element, list_appearance
@@ -409,6 +418,10 @@ namespace tui
 		//is displaying scroll currently
 		bool isDisplayingScrollNow() const { return m_display_scroll && m_scroll.isNeeded(); }
 
+		int getCurrentPosition() {
+			return m_scroll.getCurrentPosition();
+		}
+
 		void update()
 		{
 			if (isActive())
@@ -465,6 +478,5 @@ namespace tui
 				}
 			}
 		}
-
 	};
 }
