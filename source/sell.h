@@ -13,15 +13,28 @@ using namespace std;
 class Sell_UI {
 protected:
 	tui::box orderBox;
+
+	tui::list menuList;
+
 	tui::text textInBox;
 	tui::text guide;
-	tui::list menuList;
+	tui::text askFinish;
+
 	tui::symbol_string orderBoxText;
 	tui::symbol_string orderBoxText_whenEmpty;
 	tui::symbol_string guideText;
+	tui::symbol_string askFinishText;
+	tui::symbol_string askFinishText_ifNO;
 
 public:
 	Sell_UI() {
+		//Text to ask finish order
+		askFinishText << tui::COLOR::LIGHTRED << "Finish this Order?";
+		askFinishText += " (y/n)";
+		askFinish.setSizeInfo({ {0,0}, {28,1} });
+		askFinish.setPositionInfo({ {0,1}, {70,83} });
+		askFinish.setText(askFinishText);
+
 		//Text to guide this Tab
 		guideText << tui::COLOR::LIGHTBLUE << "INSERT";
 		guideText += " to add to order, ";
@@ -41,7 +54,7 @@ public:
 		orderBox.setTitlePosition(tui::POSITION::CENTER);
 
 		//Text in order Box
-		textInBox.setSizeInfo({ {0,0}, {28,85} });
+		textInBox.setSizeInfo({ {0,0}, {28,75} });
 		textInBox.setPositionInfo({ {0,1}, {70,6} });
 		orderBoxText_whenEmpty << tui::COLOR::YELLOW << "Order Box is Empty Now";
 		textInBox.setText(orderBoxText_whenEmpty);
@@ -81,6 +94,15 @@ public:
 
 		}
 		menuDB.close();
+	}
+
+	void draw_UI() {
+		tui::output::draw(orderBox);
+		tui::output::draw(menuList);
+		tui::output::draw(textInBox);
+		tui::output::draw(guide);
+
+		menuList.activate();
 	}
 
 	// Function to reload menuDB if needed.
@@ -194,15 +216,6 @@ public:
 			}
 		}
 		updateOrderBox();
-	}
-
-	void draw_UI() {
-		tui::output::draw(orderBox);
-		tui::output::draw(menuList);
-		tui::output::draw(textInBox);
-		tui::output::draw(guide);
-
-		menuList.activate();
 	}
 
 	~Sell() {

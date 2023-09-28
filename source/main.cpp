@@ -68,6 +68,10 @@ int main()
 			if (tui::input::isKeyPressed(tui::input::KEY::DEL)) {
 				sell.deleteInOrderBox();
 			}
+			if (tui::input::isKeyPressed(tui::input::KEY::END)) {
+				// finishing order process here
+				tabs.nextTab();
+			}
 
 			break;
 		case 1:
