@@ -1,5 +1,7 @@
 #pragma once
 
+#include"sell.h"
+
 #include<vector>
 #include<map>
 #include<tuple>
