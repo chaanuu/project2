@@ -15,7 +15,7 @@ int main()
 
 	//TABS
 	tui::tabs<tui::DIRECTION::HORIZONTAL> tabs({ 0,33 });
-	tabs.setTabs({ "SELL", "LIST", "REPORT", "ADMIN" });
+	tabs.setTabs({ "SELL", "QUEUE", "REPORT", "ADMIN" });
 	tabs.key_next = tui::input::KEY::CTRL_RIGHT;
 	tabs.key_prev = tui::input::KEY::CTRL_LEFT;
 	tabs.activate();
@@ -64,6 +64,9 @@ int main()
 			
 			if (tui::input::isKeyPressed(tui::input::KEY::INS)) {
 				sell.addInOrderBox();
+			}
+			if (tui::input::isKeyPressed(tui::input::KEY::DEL)) {
+				sell.deleteInOrderBox();
 			}
 
 			break;

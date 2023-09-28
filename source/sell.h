@@ -14,11 +14,25 @@ class Sell_UI {
 protected:
 	tui::box orderBox;
 	tui::text textInBox;
+	tui::text guide;
 	tui::list menuList;
 	tui::symbol_string orderBoxText;
+	tui::symbol_string orderBoxText_whenEmpty;
+	tui::symbol_string guideText;
 
 public:
 	Sell_UI() {
+		//Text to guide this Tab
+		guideText << tui::COLOR::LIGHTBLUE << "INSERT";
+		guideText += " to add to order, ";
+		guideText << tui::COLOR::LIGHTBLUE << "DELETE";
+		guideText += " to delete from order";
+		guideText << tui::COLOR::LIGHTRED << "\nEND";
+		guideText += " to finish order";
+		guide.setSizeInfo({ {0,2}, {50,1} });
+		guide.setPositionInfo({ {0,0}, {3,86} });
+		guide.setText(guideText);
+
 		//Make Box for Order List
 		orderBox.setAppearance(tui::box_appearance::thin_line);
 		orderBox.setSizeInfo({ tui::vec2i(0, 0), tui::vec2f(30, 90) });
@@ -28,13 +42,13 @@ public:
 
 		//Text in order Box
 		textInBox.setSizeInfo({ {0,0}, {28,85} });
-		textInBox.setPositionInfo({ {0,0}, {70,6} });
-		orderBoxText = "List will be displayed here";
-		textInBox.setText(orderBoxText);
+		textInBox.setPositionInfo({ {0,1}, {70,6} });
+		orderBoxText_whenEmpty << tui::COLOR::YELLOW << "Order Box is Empty Now";
+		textInBox.setText(orderBoxText_whenEmpty);
 
 		//LIST default
-		menuList.setSizeInfo({ {0,0}, {30,90} });
-		menuList.setPositionInfo({ {0,0}, {3,6} });
+		menuList.setSizeInfo({ {0,0}, {30,85} });
+		menuList.setPositionInfo({ {0,1}, {3,6} });
 		//menuList.setEntries({			});
 	}
 };
@@ -97,8 +111,8 @@ public:
 			int price = get<1>(i->second);
 			int category = i->first / 1000;
 
-			tui::symbol_string menuAndPrice = name + "   " + to_string(price);
-			tui::list_entry child_entry(menuAndPrice, tui::CHECK_STATE::NOT_CHECKED, nullptr, nullptr, nullptr);
+			tui::symbol_string menuAndPrice = name + "  " + to_string(price);
+			tui::list_entry child_entry(menuAndPrice, tui::CHECK_STATE::NONCHECKABLE, nullptr, nullptr, nullptr);
 			child_entry.setEntryID(i->first);
 
 			menuList.addEntry(child_entry);
@@ -127,33 +141,57 @@ public:
 		bool isFirstIndex = true;
 		int totalPrice = 0;
 
-		for(auto iter = orderBoxMap.begin(); iter != orderBoxMap.end(); iter++) {
-			string name = get<0>(menuMap.find(iter->first)->second);
-			tui::symbol_string currentLine = name + "  " + to_string(iter->second) + "\n";
-			totalPrice += get<1>(menuMap.find(iter->first)->second);
-			if (isFirstIndex) {
-				orderBoxText = currentLine;
-				isFirstIndex = false;
-			}
-			else {
-				orderBoxText += currentLine;
-			}
+		if (orderBoxMap.empty()) {
+			textInBox.setText(orderBoxText_whenEmpty);
 		}
-		tui::symbol_string currentLine = "total : " + to_string(totalPrice) + "\n";
-		orderBoxText += "\n" + currentLine;
-
-		textInBox.setText(orderBoxText);
+		else {
+			for (auto iter = orderBoxMap.begin(); iter != orderBoxMap.end(); iter++) {
+				string name = get<0>(menuMap.find(iter->first)->second);
+				tui::symbol_string currentLine = name + "  " + to_string(iter->second) + "\n";
+				totalPrice += get<1>(menuMap.find(iter->first)->second) * iter->second;
+				if (isFirstIndex) {
+					orderBoxText = currentLine;
+					isFirstIndex = false;
+				}
+				else {
+					orderBoxText += currentLine;
+				}
+			}
+			tui::symbol_string currentLine = "\ntotal : " + to_string(totalPrice) + "\n";
+			orderBoxText << tui::COLOR::YELLOW << currentLine;
+			textInBox.setText(orderBoxText);
+		}
 	}
 
 	void addInOrderBox() {
 		int position = menuList.getCurrentPosition();
 		tui::list_entry currentEntry = this->menuList.getEntryAt(position);
 		int currentID = currentEntry.getMenuID();
-		if (orderBoxMap.find(currentID) != orderBoxMap.end()) {
-			orderBoxMap[currentID]++;
+		if ((orderBoxMap.size() == 10) && !(orderBoxMap.find(currentID) != orderBoxMap.end())) {
+			return;
 		}
 		else {
-			orderBoxMap.insert({ currentID, 1 });
+			if (orderBoxMap.find(currentID) != orderBoxMap.end()) {
+				orderBoxMap[currentID]++;
+			}
+			else {
+				orderBoxMap.insert({ currentID, 1 });
+			}
+			updateOrderBox();
+		}
+	}
+
+	void deleteInOrderBox() {
+		int position = menuList.getCurrentPosition();
+		tui::list_entry currentEntry = this->menuList.getEntryAt(position);
+		int currentID = currentEntry.getMenuID();
+		if (orderBoxMap.find(currentID) != orderBoxMap.end()) {
+			if (orderBoxMap[currentID] > 1) {
+				orderBoxMap[currentID]--;
+			}
+			else {
+				orderBoxMap.erase(currentID);
+			}
 		}
 		updateOrderBox();
 	}
@@ -162,6 +200,7 @@ public:
 		tui::output::draw(orderBox);
 		tui::output::draw(menuList);
 		tui::output::draw(textInBox);
+		tui::output::draw(guide);
 
 		menuList.activate();
 	}
