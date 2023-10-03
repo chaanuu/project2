@@ -75,7 +75,18 @@ int main()
 
 			break;
 		case 1:
-			//tui::output::draw(textA);
+			queue.draw_UI();
+    		
+			queue.printOrders();
+        	
+			int orderNumToDelete;
+            std::cout << "Enter the order number to delete: ";
+            std::cin >> orderNumToDelete;
+		
+			queue.removeOrder(orderNumToDelete);
+        	queue.printOrders();
+    }
+
 			break;
 		case 2:
 			//tui::output::draw(list);
