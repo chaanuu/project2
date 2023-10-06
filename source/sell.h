@@ -11,31 +11,34 @@
 
 using namespace std;
 
+struct OrderInfo {
+	int id;
+	map<int, unsigned int> information;
+	
+	OrderInfo(int id, map<int, unsigned int> Info) {
+		id = id;
+		information = Info;
+	}
+
+	~OrderInfo() {};
+};
+
 class Sell_UI {
 protected:
-	tui::box orderBox;
+	tui::box orderBox; // 주문 목록 담는 사각형
 
-	tui::list menuList;
+	tui::list menuList; // 메뉴 목록
 
-	tui::text textInBox;
-	tui::text guide;
-	tui::text askFinish;
+	tui::text textInBox; // orderBox 안에들어가는 텍스트
+	tui::text guide; // 페이지 가이드 텍스트
 
 	tui::symbol_string orderBoxText;
 	tui::symbol_string orderBoxText_whenEmpty;
 	tui::symbol_string guideText;
-	tui::symbol_string askFinishText;
-	tui::symbol_string askFinishText_ifNO;
+
 
 public:
 	Sell_UI() {
-		//Text to ask finish order
-		askFinishText << tui::COLOR::LIGHTRED << "Finish this Order?";
-		askFinishText += " (y/n)";
-		askFinish.setSizeInfo({ {0,0}, {28,1} });
-		askFinish.setPositionInfo({ {0,1}, {70,83} });
-		askFinish.setText(askFinishText);
-
 		//Text to guide this Tab
 		guideText << tui::COLOR::LIGHTBLUE << "INSERT";
 		guideText += " to add to order, ";
@@ -63,15 +66,17 @@ public:
 		//LIST default
 		menuList.setSizeInfo({ {0,0}, {30,85} });
 		menuList.setPositionInfo({ {0,1}, {3,6} });
-		//menuList.setEntries({			});
 	}
 };
 
 class Sell : Sell_UI {
 private:
 	fstream menuDB;
+	
 	map<int, tuple<string, int>> menuMap; // id : key, value : tuple type (string, int)
 	map<int, unsigned int> orderBoxMap;
+	
+	int orderNum = 1;
 
 public:
 	Sell() {
@@ -81,23 +86,28 @@ public:
 			printf("menuDB 열기 실패 \n");
 			exit(0);
 		}
-
 		while (!menuDB.eof()) {
 			string id_tmp, price_tmp, name;
-
 			if (getline(menuDB, id_tmp, ',') && getline(menuDB, name, ',') && getline(menuDB, price_tmp, ',')) {
 				int id = stoi(id_tmp);
 				int price = stoi(price_tmp);
-
 				tuple<string, int> menuInfo = make_tuple(name, price);
 				menuMap.insert({ id, menuInfo });
 			}
-
 		}
+		makeMenuList();
 		menuDB.close();
 	}
 
-	void draw_UI() {
+	int getorderNum() {
+		return orderNum;
+	}
+
+	void addorderNum() {
+		orderNum++;
+	}
+
+	void drawUI() {
 		tui::output::draw(orderBox);
 		tui::output::draw(menuList);
 		tui::output::draw(textInBox);
@@ -106,61 +116,19 @@ public:
 		menuList.activate();
 	}
 
-	// Function to reload menuDB if needed.
-	void update_menuMap() {
-		menuMap.clear();
-
-		menuDB.open("menuDB.csv", ios::in);
-
-		while (!menuDB.eof()) {
-			string id_tmp, price_tmp, name;
-
-			getline(menuDB, id_tmp, ',');
-			getline(menuDB, name, ',');
-			getline(menuDB, price_tmp, ',');
-
-			int id = stoi(id_tmp);
-			int price = stoi(price_tmp);
-
-			tuple<string, int> menuInfo = make_tuple(name, price);
-			menuMap.insert({ id, menuInfo });
-		}
-		menuDB.close();
-	}
-
-	void makeMenuList() {
+	void makeMenuList() { 
 		for (auto i = menuMap.begin(); i != menuMap.end(); i++) {
 			string name = get<0>(i->second);
 			int price = get<1>(i->second);
-			int category = i->first / 1000;
-
 			tui::symbol_string menuAndPrice = name + "  " + to_string(price);
-			tui::list_entry child_entry(menuAndPrice, tui::CHECK_STATE::NONCHECKABLE, nullptr, nullptr, nullptr);
-			child_entry.setEntryID(i->first);
-
-			menuList.addEntry(child_entry);
-			/*
-			tui::list_entry parent_entry = menuList.getEntries()[category - 1];
-
-			if (category >= 1 && category <= 3) {
-				if (parent_entry.nested_entries.empty()) {
-					parent_entry.nested_entries = { child_entry };
-
-				}
-				else {
-					parent_entry.nested_entries.push_back(child_entry);
-				}
-			}
-			else {
-				continue;
-			}
-			*/
-			menuList.update();
-
+			tui::list_entry entry(menuAndPrice, tui::CHECK_STATE::NONCHECKABLE, nullptr, nullptr, nullptr);
+			entry.setEntryID(i->first);
+			menuList.addEntry(entry);
 		}
+		menuList.update();
 	}
 
-	void updateOrderBox() {
+	void update() {
 		bool isFirstIndex = true;
 		int totalPrice = 0;
 
@@ -186,7 +154,7 @@ public:
 		}
 	}
 
-	void addInOrderBox() {
+	void push() {
 		int position = menuList.getCurrentPosition();
 		tui::list_entry currentEntry = this->menuList.getEntryAt(position);
 		int currentID = currentEntry.getMenuID();
@@ -200,11 +168,11 @@ public:
 			else {
 				orderBoxMap.insert({ currentID, 1 });
 			}
-			updateOrderBox();
+			update();
 		}
 	}
 
-	void deleteInOrderBox() {
+	void pull() {
 		int position = menuList.getCurrentPosition();
 		tui::list_entry currentEntry = this->menuList.getEntryAt(position);
 		int currentID = currentEntry.getMenuID();
@@ -216,10 +184,20 @@ public:
 				orderBoxMap.erase(currentID);
 			}
 		}
-		updateOrderBox();
+		update();
 	}
 
-	~Sell() {
-		menuMap.clear();
+	OrderInfo finish() {
+		struct OrderInfo thisorder = OrderInfo(orderNum, orderBoxMap);
+
+		addorderNum();
+		clear();
+		update();
+
+		return thisorder;
+	}
+
+	void clear() {
+		orderBoxMap.clear();
 	}
 };

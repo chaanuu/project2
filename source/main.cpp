@@ -6,7 +6,6 @@
 int main()
 {
 	Sell sell;
-	sell.makeMenuList();
 
 	//BOX
 	tui::box main_box({ {0,0}, {100,100} });
@@ -28,24 +27,6 @@ int main()
 	tui::surface tabs_keys(t_desc);
 	tabs_keys.setPositionInfo({ {-1,0}, {0,0}, {tui::POSITION::END, tui::POSITION::END} });
 
-	//TEXT2
-	tui::text textA({ {0,0}, {20,20} });
-	textA.setPositionInfo({ {0,0}, {0,0}, {tui::POSITION::CENTER, tui::POSITION::CENTER} });
-	tui::symbol_string str2;
-	for (char i = 1; i < 127; i++) { str2.push_back(i); }
-	str2 = "In Construction....\n";
-	textA.setText(str2);
-
-	//INPUT_TEXT
-	tui::input_text itxt({ {0,0}, {15,25} });
-	itxt.setPositionInfo({ {0,0}, {0,0}, {tui::POSITION::CENTER, tui::POSITION::CENTER} });
-
-	//NAVIGATION GROUP
-	tui::navigation_group tabs_nav({ &textA, &itxt, nullptr });
-	tabs_nav.key_next = tui::input::KEY::CTRL_RIGHT;
-	tabs_nav.key_prev = tui::input::KEY::CTRL_LEFT;
-	tabs_nav.activate();
-
 	tui::init();
 
 	while (!tui::input::isKeyPressed(tui::input::KEY::ESC))
@@ -55,37 +36,30 @@ int main()
 		tui::output::draw(main_box);
 		tui::output::draw(tabs);
 		tui::output::draw(tabs_keys);
-		tabs_nav.update();
 
 		switch (tabs.getSelected())
 		{
 		case 0:
-			sell.draw_UI();
+			sell.drawUI();
 			
 			if (tui::input::isKeyPressed(tui::input::KEY::INS)) {
-				sell.addInOrderBox();
+				sell.push();
 			}
 			if (tui::input::isKeyPressed(tui::input::KEY::DEL)) {
-				sell.deleteInOrderBox();
+				sell.pull();
 			}
 			if (tui::input::isKeyPressed(tui::input::KEY::END)) {
-				// finishing order process here
-				tabs.nextTab();
+				struct OrderInfo thisorder = sell.finish(); // USE THIS STRUCT IF NEEDED
 			}
-
 			break;
 		case 1:
-			queue.draw_UI();
-    		
-			queue.printOrders();
-        	
-			
+			//queue.draw_UI();
+    		//queue.printOrders();
+        				
 			break;
 		case 2:
-			//tui::output::draw(list);
 			break;
 		case 3:
-			//tui::output::draw(textA);
 			break;
 		}
 

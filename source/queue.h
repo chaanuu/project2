@@ -9,11 +9,7 @@
 
 using namespace std;
 
-struct Queue_Struct {
-	int orderNum;
-	map<int, unsigned int> orderBoxMap;
-};
-
+/*
 class Queue_UI {
 protected:
 	tui::box orderListBox;
@@ -118,3 +114,5 @@ void removeOrderAndUpdate() {
 
 getStringInput();
 clear();
+
+*/
