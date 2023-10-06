@@ -1,10 +1,13 @@
 ﻿#include "TUI/tui.h"
+#include "menu.h"
 #include "sell.h"
 
 #include <cmath>
 
 int main()
 {
+	read_MenuDB();
+
 	Sell sell;
 
 	//BOX
@@ -50,6 +53,7 @@ int main()
 			}
 			if (tui::input::isKeyPressed(tui::input::KEY::END)) {
 				struct OrderInfo thisorder = sell.finish(); // USE THIS STRUCT IF NEEDED
+				//...
 			}
 			break;
 		case 1:

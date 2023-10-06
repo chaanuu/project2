@@ -1,10 +1,9 @@
 #pragma once
 
 #include "TUI/tui.h"
+#include "menu.h"
 #include "queue.h"
 
-#include <iostream>
-#include <fstream>
 #include <map>
 #include <tuple>
 #include <string>
@@ -12,15 +11,14 @@
 using namespace std;
 
 struct OrderInfo {
-	int id;
+	int number;
 	map<int, unsigned int> information;
 	
-	OrderInfo(int id, map<int, unsigned int> Info) {
-		id = id;
+	OrderInfo(int orderNum, map<int, unsigned int> Info) {
+		number = orderNum;
 		information = Info;
 	}
-
-	~OrderInfo() {};
+	~OrderInfo() {	}
 };
 
 class Sell_UI {
@@ -71,32 +69,13 @@ public:
 
 class Sell : Sell_UI {
 private:
-	fstream menuDB;
-	
-	map<int, tuple<string, int>> menuMap; // id : key, value : tuple type (string, int)
 	map<int, unsigned int> orderBoxMap;
-	
-	int orderNum = 1;
+	int orderNum;
 
 public:
 	Sell() {
-		menuDB.open("source/database/menuDB.CSV", ios::in);
-		if (!menuDB.is_open()) {
-			// menuDB file could not open
-			printf("menuDB 열기 실패 \n");
-			exit(0);
-		}
-		while (!menuDB.eof()) {
-			string id_tmp, price_tmp, name;
-			if (getline(menuDB, id_tmp, ',') && getline(menuDB, name, ',') && getline(menuDB, price_tmp, ',')) {
-				int id = stoi(id_tmp);
-				int price = stoi(price_tmp);
-				tuple<string, int> menuInfo = make_tuple(name, price);
-				menuMap.insert({ id, menuInfo });
-			}
-		}
+		orderNum = 1;
 		makeMenuList();
-		menuDB.close();
 	}
 
 	int getorderNum() {
@@ -118,8 +97,8 @@ public:
 
 	void makeMenuList() { 
 		for (auto i = menuMap.begin(); i != menuMap.end(); i++) {
-			string name = get<0>(i->second);
-			int price = get<1>(i->second);
+			string name = getMenuName(i->first);
+			int price = getMenuPrice(i->first);
 			tui::symbol_string menuAndPrice = name + "  " + to_string(price);
 			tui::list_entry entry(menuAndPrice, tui::CHECK_STATE::NONCHECKABLE, nullptr, nullptr, nullptr);
 			entry.setEntryID(i->first);
@@ -137,9 +116,9 @@ public:
 		}
 		else {
 			for (auto iter = orderBoxMap.begin(); iter != orderBoxMap.end(); iter++) {
-				string name = get<0>(menuMap.find(iter->first)->second);
+				string name = getMenuName(iter->first);
 				tui::symbol_string currentLine = name + "  " + to_string(iter->second) + "\n";
-				totalPrice += get<1>(menuMap.find(iter->first)->second) * iter->second;
+				totalPrice += getMenuPrice(iter->first) * iter->second;
 				if (isFirstIndex) {
 					orderBoxText = currentLine;
 					isFirstIndex = false;
@@ -188,7 +167,8 @@ public:
 	}
 
 	OrderInfo finish() {
-		struct OrderInfo thisorder = OrderInfo(orderNum, orderBoxMap);
+		int currentOrderNum = getorderNum();
+		struct OrderInfo thisorder = OrderInfo(currentOrderNum, orderBoxMap);
 
 		addorderNum();
 		clear();
