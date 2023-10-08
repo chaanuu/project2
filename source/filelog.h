@@ -37,7 +37,6 @@ int filelog() {
 
     std::string date = year + month + day;
     std::string time = hour + minute + second;
-    
     //--------------------------------------------------------------------------여기까지 현재시간 저장 코드
 
 
