@@ -13,12 +13,12 @@ auto livetime() {
 string changeNum(int num) {
     string temp;
     if (num < 10)
-        temp = "0" + std::to_string(num);
+        temp = "0" + std::to_string(num);  //한자리수인 경우 앞에 0을 붙임
     else
         temp = std::to_string(num);
 
     return temp;
-}
+} 
 
 int filelog() {
     //-------------------------------------------------------------------------------
