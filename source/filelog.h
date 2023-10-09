@@ -50,13 +50,15 @@ int filelog(OrderInfo orderinfo) {
     }
     else {
         string orderdata;
+        int totalPrice =0;
         for (auto iter = orderinfo.information.begin(); iter != orderinfo.information.end(); iter++) {
-            orderdata += iter->first + " " + iter->second;
+            orderdata += "," + getMenuName(iter->first) + "," + to_string(iter->second);
+            totalPrice += getMenuPrice(iter->first) * iter->second;
         }
-        outputFile << date << "," << time << "," << orderinfo.number << "," << orderdata <<"\n";
+        outputFile << date << "," << time << "," << orderinfo.number << "," << to_string(totalPrice) << orderdata << "\n";
 
 
-
+        
         outputFile.close();
     }
 
