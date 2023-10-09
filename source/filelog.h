@@ -3,6 +3,7 @@
 #include <fstream>
 #include <sstream>
 #include <chrono>
+#include "sell.h"
 
 auto livetime() {
     auto now = std::chrono::system_clock::now();
@@ -13,14 +14,14 @@ auto livetime() {
 string changeNum(int num) {
     string temp;
     if (num < 10)
-        temp = "0" + std::to_string(num);  //한자리수인 경우 앞에 0을 붙임
+        temp = "0" + std::to_string(num); //한자리수인 경우 앞에 0을 붙임
     else
         temp = std::to_string(num);
 
     return temp;
-} 
+}
 
-int filelog() {
+int filelog(OrderInfo orderinfo) {
     //-------------------------------------------------------------------------------
     std::time_t time_now = std::chrono::system_clock::to_time_t(livetime());
     auto time_point = std::chrono::system_clock::to_time_t(livetime());
@@ -48,7 +49,14 @@ int filelog() {
         return 1;
     }
     else {
-        outputFile << date << "," << time << "," << second << "\n";
+        string orderdata;
+        for (auto iter = orderinfo.information.begin(); iter != orderinfo.information.end(); iter++) {
+            orderdata += iter->first + " " + iter->second;
+        }
+        outputFile << date << "," << time << "," << orderinfo.number << "," << orderdata <<"\n";
+
+
+
         outputFile.close();
     }
 
