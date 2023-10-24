@@ -25,7 +25,7 @@ void read_MenuDB() {
 		exit(0);
 	}
 	else {
-		printf("menuDB 열기 성공 \n");
+		printf("menuDB.db 열기 성공 \n");
 	}
 	while (!menuDB.eof()) {
 		string id_tmp, price_tmp, name;
