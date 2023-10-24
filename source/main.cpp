@@ -2,14 +2,17 @@
 #include "menu.h"
 #include "sell.h"
 #include "filelog.h"
+#include "customer.h"
 
 #include <cmath>
+#include <Windows.h>
 
 int main()
 {
 	read_MenuDB();
-
+	DatabaseManager customerManager;
 	Sell sell;
+	Sleep(2000);
 
 	//BOX
 	tui::box main_box({ {0,0}, {100,100} });
@@ -71,6 +74,6 @@ int main()
 
 		tui::output::display();
 	}
-
+	customerManager.~DatabaseManager();
 	return 0;
 }

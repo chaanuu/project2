@@ -24,6 +24,9 @@ void read_MenuDB() {
 		printf("menuDB 열기 실패 \n");
 		exit(0);
 	}
+	else {
+		printf("menuDB 열기 성공 \n");
+	}
 	while (!menuDB.eof()) {
 		string id_tmp, price_tmp, name;
 		if (getline(menuDB, id_tmp, ',') && getline(menuDB, name, ',') && getline(menuDB, price_tmp, ',')) {
