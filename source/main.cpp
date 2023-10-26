@@ -12,8 +12,6 @@ using namespace std;
 
 bool IsPhoneNumberValid(const string& str) {
 	std::regex pattern("^010-[0-9]{4}-[0-9]{4}$");
-
-	// 주어진 문자열을 정규 표현식과 비교합니다.
 	return std::regex_match(str, pattern);
 }
 
@@ -46,8 +44,9 @@ int main()
 
 	// variables for SELL tab
 	unsigned int sell_key = 0;
+	bool wrongFormat = false;
 	tui::input_text input_SELL({ {20,2}, {0,0} });
-	input_SELL.setPositionInfo({ {0,0}, {10,45} });
+	input_SELL.setPositionInfo({ {0,0}, {10,50} });
 	string customerHP = "/0";
 	tui::symbol_string input_txt;
 	// ..
@@ -64,7 +63,7 @@ int main()
 
 		switch (tabs.getSelected())
 		{
-		case 0:
+		case 0: //주문 초기화면
 			switch (sell_key) {
 			case 0:
 				sell.drawUI0();
@@ -75,12 +74,13 @@ int main()
 				if (tui::input::isKeyPressed(tui::input::KEY::DEL)) {
 					sell.pull();
 				}
-				if (tui::input::isKeyPressed(tui::input::KEY::END)) {
+				if (tui::input::isKeyPressed(tui::input::KEY::END) && sell.isOrderExist()) {
 					sell_key = 1;
 				}
 				break;
-			case 1:
-				sell.drawUI1();
+
+			case 1: // END눌렸을때
+				sell.drawUI1(wrongFormat);
 				tui::output::draw(input_SELL);
 				input_SELL.activate();
 
@@ -90,46 +90,26 @@ int main()
 
 					if (customerHP == "") {// 주문 완료
 						sell_key = 0;
-						struct OrderInfo thisorder = sell.finish(); // USE THIS STRUCT IF NEEDED
-						filelog(thisorder);
-					}
-					else if (IsPhoneNumberValid(customerHP)) {
-						// 번호 형식이 맞는 경우
-						// 쿠폰 확인 (DB 조회) 후 사용 여부 묻기 (case 4)
-					}
-					else { // 번호 형식이 아님 -> 번호 재입력 창
-						sell_key = 2;
-						input_SELL.setText("");
-					}
-				}
-				break;
-			case 2: // 번호 재입력 창
-				sell.drawUI2();
-				tui::output::draw(input_SELL);
-				input_SELL.activate();
-
-				if (tui::input::isKeyPressed(tui::input::KEY::END)) {
-					input_txt = input_SELL.getText();
-					customerHP = input_txt.getStdString();
-
-					if (customerHP == "") { // 주문 완료
-						sell_key = 0;
+						wrongFormat = false;
 						struct OrderInfo thisorder = sell.finish(customerHP); // USE THIS STRUCT IF NEEDED
 						filelog(thisorder);
 					}
 					else if (IsPhoneNumberValid(customerHP)) {
+						wrongFormat = false;
 						// 번호 형식이 맞는 경우
-						// 쿠폰 확인 (DB 조회) 후 사용 여부 묻기 (case 4)
+						// 쿠폰 확인 (DB 조회) 후 사용 여부 묻기 (case 2)
+						sell_key = 2;
 					}
 					else { // 번호 형식이 아님 -> 번호 재입력 창
-						input_SELL.setText("");
+						wrongFormat = true;
 					}
+					input_SELL.setText("");
 				}
 				break;
-			case 3: // 쿠폰 확인 창
+			
+			case 2: 
 				break;
 			}
-			break;
 		case 1:
 			//queue.draw_UI();
     		//queue.printOrders();

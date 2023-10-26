@@ -26,7 +26,6 @@ struct OrderInfo {
 class Sell_UI {
 protected:
 	tui::box orderBox; // 주문 목록 담는 사각형
-	tui::box endBox; // 주문 종료시 사용하는 사각형
 
 	tui::list menuList; // 메뉴 목록
 
@@ -61,7 +60,9 @@ public:
 		guideText_end << tui::COLOR::LIGHTBLUE << "TYPE PHONE NUMBER";
 		guideText_end += " to finish order (010-XXXX-XXXX)\nAnd press";
 		guideText_end << tui::COLOR::LIGHTRED << " END";
-		guide_end.setSizeInfo({ {0,2}, {50,1} });
+		guideText_end += "\nor just press END to SKIP";
+
+		guide_end.setSizeInfo({ {0,3}, {50,1} });
 		guide_end.setPositionInfo({ {0,0}, {10,35} });
 		guide_end.setText(guideText_end);
 
@@ -85,11 +86,6 @@ public:
 		orderBox.setPositionInfo({ tui::vec2i(0, 0), tui::vec2f(68, 4) });
 		orderBox.setTitle("Order Box");
 		orderBox.setTitlePosition(tui::POSITION::CENTER);
-
-		//Make Box for asking when end
-		endBox.setAppearance(tui::box_appearance::thin_line);
-		endBox.setSizeInfo({ tui::vec2i(0, 4), tui::vec2f(62, 0) });
-		endBox.setPositionInfo({ tui::vec2i(0, 0), tui::vec2f(3, 81) });
 
 		//Text in order Box
 		textInBox.setSizeInfo({ {0,0}, {28,75} });
@@ -124,7 +120,6 @@ public:
 
 	void drawUI0() {
 		tui::output::draw(orderBox);
-		tui::output::draw(endBox);
 		tui::output::draw(menuList);
 		tui::output::draw(textInBox);
 		tui::output::draw(guide);
@@ -132,17 +127,12 @@ public:
 		menuList.activate();
 	}
 
-	void drawUI1() {
+	void drawUI1(bool wrongFormat) {
 		tui::output::draw(orderBox);
 		tui::output::draw(textInBox);
 		tui::output::draw(guide_end);
-	}
+		if(wrongFormat) tui::output::draw(guide_wrong_format);
 
-	void drawUI2() {
-		tui::output::draw(orderBox);
-		tui::output::draw(textInBox);
-		tui::output::draw(guide_end);
-		tui::output::draw(guide_wrong_format);
 	}
 
 	void makeMenuList() { 
@@ -216,7 +206,7 @@ public:
 		update();
 	}
 
-	OrderInfo finish(string cumstomer) {
+	OrderInfo finish(string customer) {
 		int currentOrderNum = getorderNum();
 		struct OrderInfo thisorder = OrderInfo(currentOrderNum, orderBoxMap, customer);
 
@@ -229,5 +219,9 @@ public:
 
 	void clear() {
 		orderBoxMap.clear();
+	}
+
+	bool isOrderExist() {
+		return !orderBoxMap.empty();
 	}
 };
