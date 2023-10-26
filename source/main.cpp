@@ -6,13 +6,23 @@
 
 #include <cmath>
 #include <Windows.h>
+#include <regex>
+
+using namespace std;
+
+bool IsPhoneNumberValid(const string& str) {
+	std::regex pattern("^010-[0-9]{4}-[0-9]{4}$");
+
+	// 주어진 문자열을 정규 표현식과 비교합니다.
+	return std::regex_match(str, pattern);
+}
 
 int main()
 {
 	read_MenuDB();
 	DatabaseManager customerManager;
 	Sell sell;
-	Sleep(2000);
+	Sleep(500);
 
 	//BOX
 	tui::box main_box({ {0,0}, {100,100} });
@@ -34,6 +44,14 @@ int main()
 	tui::surface tabs_keys(t_desc);
 	tabs_keys.setPositionInfo({ {-1,0}, {0,0}, {tui::POSITION::END, tui::POSITION::END} });
 
+	// variables for SELL tab
+	unsigned int sell_key = 0;
+	tui::input_text input_SELL({ {20,2}, {0,0} });
+	input_SELL.setPositionInfo({ {0,0}, {10,45} });
+	string customerHP = "/0";
+	tui::symbol_string input_txt;
+	// ..
+
 	tui::init();
 
 	while (!tui::input::isKeyPressed(tui::input::KEY::ESC))
@@ -47,18 +65,69 @@ int main()
 		switch (tabs.getSelected())
 		{
 		case 0:
-			sell.drawUI();
-			
-			if (tui::input::isKeyPressed(tui::input::KEY::INS)) {
-				sell.push();
-			}
-			if (tui::input::isKeyPressed(tui::input::KEY::DEL)) {
-				sell.pull();
-			}
-			if (tui::input::isKeyPressed(tui::input::KEY::END)) {
-				struct OrderInfo thisorder = sell.finish(); // USE THIS STRUCT IF NEEDED
-				filelog(thisorder);
-				//...
+			switch (sell_key) {
+			case 0:
+				sell.drawUI0();
+
+				if (tui::input::isKeyPressed(tui::input::KEY::INS)) {
+					sell.push();
+				}
+				if (tui::input::isKeyPressed(tui::input::KEY::DEL)) {
+					sell.pull();
+				}
+				if (tui::input::isKeyPressed(tui::input::KEY::END)) {
+					sell_key = 1;
+				}
+				break;
+			case 1:
+				sell.drawUI1();
+				tui::output::draw(input_SELL);
+				input_SELL.activate();
+
+				if (tui::input::isKeyPressed(tui::input::KEY::END)) {
+					input_txt = input_SELL.getText();
+					customerHP = input_txt.getStdString();
+
+					if (customerHP == "") {// 주문 완료
+						sell_key = 0;
+						struct OrderInfo thisorder = sell.finish(); // USE THIS STRUCT IF NEEDED
+						filelog(thisorder);
+					}
+					else if (IsPhoneNumberValid(customerHP)) {
+						// 번호 형식이 맞는 경우
+						// 쿠폰 확인 (DB 조회) 후 사용 여부 묻기 (case 4)
+					}
+					else { // 번호 형식이 아님 -> 번호 재입력 창
+						sell_key = 2;
+						input_SELL.setText("");
+					}
+				}
+				break;
+			case 2: // 번호 재입력 창
+				sell.drawUI2();
+				tui::output::draw(input_SELL);
+				input_SELL.activate();
+
+				if (tui::input::isKeyPressed(tui::input::KEY::END)) {
+					input_txt = input_SELL.getText();
+					customerHP = input_txt.getStdString();
+
+					if (customerHP == "") { // 주문 완료
+						sell_key = 0;
+						struct OrderInfo thisorder = sell.finish(customerHP); // USE THIS STRUCT IF NEEDED
+						filelog(thisorder);
+					}
+					else if (IsPhoneNumberValid(customerHP)) {
+						// 번호 형식이 맞는 경우
+						// 쿠폰 확인 (DB 조회) 후 사용 여부 묻기 (case 4)
+					}
+					else { // 번호 형식이 아님 -> 번호 재입력 창
+						input_SELL.setText("");
+					}
+				}
+				break;
+			case 3: // 쿠폰 확인 창
+				break;
 			}
 			break;
 		case 1:

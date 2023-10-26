@@ -15,9 +15,10 @@ struct OrderInfo {
 	map<int, unsigned int> information;
 	string customerHP;
 	
-	OrderInfo(int orderNum, map<int, unsigned int> Info) {
+	OrderInfo(int orderNum, map<int, unsigned int> Info, string customer) {
 		number = orderNum;
 		information = Info;
+		customerHP = customer;
 	}
 	~OrderInfo() {	}
 };
@@ -32,12 +33,15 @@ protected:
 	tui::text textInBox; // orderBox 안에들어가는 텍스트
 	tui::text guide; // 페이지 가이드 텍스트
 	tui::text guide_end; // 페이지 가이드 텍스트
+	tui::text guide_wrong_format; //틀린 형식 입력되었을때
+	tui::text guide_succesful_order; //주문 성공 시 출력
 
 	tui::symbol_string orderBoxText;
 	tui::symbol_string orderBoxText_whenEmpty;
 	tui::symbol_string guideText;
 	tui::symbol_string guideText_end;
-
+	tui::symbol_string wrong_format;
+	tui::symbol_string succesful_order;
 
 
 public:
@@ -49,16 +53,31 @@ public:
 		guideText += " to delete from order";
 		guideText << tui::COLOR::LIGHTRED << "\nEND";
 		guideText += " to finish order";
-		guide_end.setSizeInfo({ {0,2}, {50,1} });
-		guide_end.setPositionInfo({ {0,0}, {5,82} });
-		guide_end.setText(guideText);
-
-		//Text to guide to end
-		guideText_end << tui::COLOR::LIGHTBLUE << "TYPE PHONE NUMBER";
-		guideText_end += " to finish order (010-XXXX-XXXX)";
 		guide.setSizeInfo({ {0,2}, {50,1} });
 		guide.setPositionInfo({ {0,0}, {5,82} });
 		guide.setText(guideText);
+
+		//Text to guide to end
+		guideText_end << tui::COLOR::LIGHTBLUE << "TYPE PHONE NUMBER";
+		guideText_end += " to finish order (010-XXXX-XXXX)\nAnd press";
+		guideText_end << tui::COLOR::LIGHTRED << " END";
+		guide_end.setSizeInfo({ {0,2}, {50,1} });
+		guide_end.setPositionInfo({ {0,0}, {10,35} });
+		guide_end.setText(guideText_end);
+
+		//Text to guide to wrong format input
+		wrong_format << tui::COLOR::LIGHTRED << "WRONG FORMAT !";
+		guide_wrong_format.setSizeInfo({ {0,2}, {50,1} });
+		guide_wrong_format.setPositionInfo({ {0,0}, {10,30} });
+		guide_wrong_format.setText(wrong_format);
+
+		/*
+		//Text to show order process completed
+		succesful_order << tui::COLOR::LIGHTBLUE << "Order processed scuccesfully!";
+		guide_succesful_order.setSizeInfo({ { 1,20 }, {0, 0} });
+		guide_succesful_order.setPositionInfo({ {0,0}, {0,0}, {tui::POSITION::CENTER, tui::POSITION::CENTER} });
+		guide_succesful_order.setText(succesful_order);
+		*/
 
 		//Make Box for Order List
 		orderBox.setAppearance(tui::box_appearance::thin_line);
@@ -103,7 +122,7 @@ public:
 		orderNum++;
 	}
 
-	void drawUI() {
+	void drawUI0() {
 		tui::output::draw(orderBox);
 		tui::output::draw(endBox);
 		tui::output::draw(menuList);
@@ -111,6 +130,19 @@ public:
 		tui::output::draw(guide);
 
 		menuList.activate();
+	}
+
+	void drawUI1() {
+		tui::output::draw(orderBox);
+		tui::output::draw(textInBox);
+		tui::output::draw(guide_end);
+	}
+
+	void drawUI2() {
+		tui::output::draw(orderBox);
+		tui::output::draw(textInBox);
+		tui::output::draw(guide_end);
+		tui::output::draw(guide_wrong_format);
 	}
 
 	void makeMenuList() { 
@@ -184,15 +216,13 @@ public:
 		update();
 	}
 
-	OrderInfo finish() {
+	OrderInfo finish(string cumstomer) {
 		int currentOrderNum = getorderNum();
-		struct OrderInfo thisorder = OrderInfo(currentOrderNum, orderBoxMap);
+		struct OrderInfo thisorder = OrderInfo(currentOrderNum, orderBoxMap, customer);
 
 		addorderNum();
 		clear();
 		update();
-
-
 
 		return thisorder;
 	}

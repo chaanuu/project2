@@ -5,7 +5,7 @@
 #include <iostream>
 #include <fstream>
 
-#define MENUDB_PATH "source/database/menuDB.CSV"
+#define MENUDB_PATH "../source/database/menuDB.CSV"
 
 using namespace std;
 
