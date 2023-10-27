@@ -52,7 +52,7 @@ int filelog(OrderInfo orderinfo) {
         string orderdata;
         int totalPrice =0;
         for (auto iter = orderinfo.information.begin(); iter != orderinfo.information.end(); iter++) {
-            orderdata += "," + getMenuName(iter->first) + "," + to_string(iter->second) + "," + to_string(getMenuPrice(iter->first));
+            orderdata += "," + to_string(iter->first) + "," + to_string(iter->second);
             totalPrice += getMenuPrice(iter->first) * iter->second;
         }
         outputFile << orderinfo.number << "," << date << "," << time  <<"," << to_string(totalPrice) << orderdata << "\n";
