@@ -44,6 +44,7 @@ int main()
 
 	// variables for SELL tab
 	unsigned int sell_key = 0;
+	unsigned int coupons = 0;
 	bool wrongFormat = false;
 	tui::input_text input_SELL({ {20,2}, {0,0} });
 	input_SELL.setPositionInfo({ {0,0}, {10,50} });
@@ -88,7 +89,7 @@ int main()
 					input_txt = input_SELL.getText();
 					customerHP = input_txt.getStdString();
 
-					if (customerHP == "") {// 주문 완료
+					if (customerHP == "") {// 사용자HP미입력, 주문 완료
 						sell_key = 0;
 						wrongFormat = false;
 						struct OrderInfo thisorder = sell.finish(customerHP); // USE THIS STRUCT IF NEEDED
@@ -96,9 +97,16 @@ int main()
 					}
 					else if (IsPhoneNumberValid(customerHP)) {
 						wrongFormat = false;
-						// 번호 형식이 맞는 경우
-						// 쿠폰 확인 (DB 조회) 후 사용 여부 묻기 (case 2)
-						sell_key = 2;
+						coupons = 2; //여기를 쿠폰확인 함수로 수정
+						if (coupons == 0) { // 쿠폰없음, 주문완료
+							sell_key = 0;
+							wrongFormat = false;
+							struct OrderInfo thisorder = sell.finish(customerHP); // USE THIS STRUCT IF NEEDED
+							filelog(thisorder);
+						}
+						else { 
+							sell_key = 2;
+						}
 					}
 					else { // 번호 형식이 아님 -> 번호 재입력 창
 						wrongFormat = true;
@@ -106,10 +114,22 @@ int main()
 					input_SELL.setText("");
 				}
 				break;
-			
-			case 2: 
+
+			case 2: //쿠폰 사용 여부 확인하기
+				sell.drawUI2(coupons);
+				if (tui::input::isKeyPressed('Y') || tui::input::isKeyPressed('y')) { //쿠폰사용, 주문완료
+					sell_key = 0;
+					struct OrderInfo thisorder = sell.finish(customerHP, true); // USE THIS STRUCT IF NEEDED
+					filelog(thisorder);
+				}
+				if (tui::input::isKeyPressed('N') || tui::input::isKeyPressed('n')) { //쿠폰미사용, 주문완료
+					sell_key = 0;
+					struct OrderInfo thisorder = sell.finish(customerHP); // USE THIS STRUCT IF NEEDED
+					filelog(thisorder);
+				}
 				break;
 			}
+
 		case 1:
 			//queue.draw_UI();
     		//queue.printOrders();

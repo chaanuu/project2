@@ -14,11 +14,13 @@ struct OrderInfo {
 	int number;
 	map<int, unsigned int> information;
 	string customerHP;
+	bool coupon_used;
 	
-	OrderInfo(int orderNum, map<int, unsigned int> Info, string customer) {
+	OrderInfo(int orderNum, map<int, unsigned int> Info, string customer, bool is_coupon_used) {
 		number = orderNum;
 		information = Info;
 		customerHP = customer;
+		coupon_used = is_coupon_used;
 	}
 	~OrderInfo() {	}
 };
@@ -34,15 +36,17 @@ protected:
 	tui::text guide_end; // 페이지 가이드 텍스트
 	tui::text guide_wrong_format; //틀린 형식 입력되었을때
 	tui::text guide_succesful_order; //주문 성공 시 출력
+	tui::text guide_use_coupon;
 
 	tui::symbol_string orderBoxText;
 	tui::symbol_string orderBoxText_whenEmpty;
 	tui::symbol_string guideText;
 	tui::symbol_string guideText_end;
 	tui::symbol_string wrong_format;
-	tui::symbol_string succesful_order;
+	// tui::symbol_string succesful_order;
+	tui::symbol_string guideText_use_coupon;
 
-
+	unsigned int tmp_coupon = 0;
 public:
 	Sell_UI() {
 		//Text to guide this Tab
@@ -61,7 +65,6 @@ public:
 		guideText_end += " to finish order (010-XXXX-XXXX)\nAnd press";
 		guideText_end << tui::COLOR::LIGHTRED << " END";
 		guideText_end += "\nor just press END to SKIP";
-
 		guide_end.setSizeInfo({ {0,3}, {50,1} });
 		guide_end.setPositionInfo({ {0,0}, {10,35} });
 		guide_end.setText(guideText_end);
@@ -72,6 +75,14 @@ public:
 		guide_wrong_format.setPositionInfo({ {0,0}, {10,30} });
 		guide_wrong_format.setText(wrong_format);
 
+		//Text to guide to use coupon
+		guideText_use_coupon = "You have ";
+		guideText_use_coupon << tui::COLOR::LIGHTBLUE << to_string(tmp_coupon) << " coupons";
+		guideText_use_coupon += "\nPress 'Y' to use, 'N' to not use.";
+		guide_use_coupon.setSizeInfo({ {0,5}, {30,0} });
+		guide_use_coupon.setPositionInfo({ {0,0}, {0,0}, {tui::POSITION::CENTER, tui::POSITION::CENTER} });
+		guide_use_coupon.setText(guideText_use_coupon);
+		
 		/*
 		//Text to show order process completed
 		succesful_order << tui::COLOR::LIGHTBLUE << "Order processed scuccesfully!";
@@ -131,8 +142,16 @@ public:
 		tui::output::draw(orderBox);
 		tui::output::draw(textInBox);
 		tui::output::draw(guide_end);
-		if(wrongFormat) tui::output::draw(guide_wrong_format);
+		if (wrongFormat) tui::output::draw(guide_wrong_format);
 
+	}
+
+	void drawUI2(unsigned int coupons) {
+		guideText_use_coupon = "You have ";
+		guideText_use_coupon << tui::COLOR::LIGHTBLUE << to_string(coupons) << " coupons";
+		guideText_use_coupon += "\nPress 'Y' to use, 'N' to not use.";
+		guide_use_coupon.setText(guideText_use_coupon);
+		tui::output::draw(guide_use_coupon);
 	}
 
 	void makeMenuList() { 
@@ -206,9 +225,9 @@ public:
 		update();
 	}
 
-	OrderInfo finish(string customer) {
+	OrderInfo finish(string customer, bool is_coupon_used = false) {
 		int currentOrderNum = getorderNum();
-		struct OrderInfo thisorder = OrderInfo(currentOrderNum, orderBoxMap, customer);
+		struct OrderInfo thisorder = OrderInfo(currentOrderNum, orderBoxMap, customer, is_coupon_used);
 
 		addorderNum();
 		clear();
