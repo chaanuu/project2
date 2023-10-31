@@ -3,6 +3,7 @@
 #include "sell.h"
 #include "filelog.h"
 #include "customer.h"
+#include "report.h"
 
 #include <cmath>
 #include <Windows.h>
@@ -15,12 +16,17 @@ bool IsPhoneNumberValid(const string& str) {
 	return std::regex_match(str, pattern);
 }
 
+void process_order(string customerHP) {
+
+}
+
+
 int main()
 {
 	read_MenuDB();
 	DatabaseManager customerManager;
 	Sell sell;
-	Sleep(500);
+	//Sleep(500);
 
 	//BOX
 	tui::box main_box({ {0,0}, {100,100} });
@@ -51,6 +57,10 @@ int main()
 	string customerHP = "/0";
 	tui::symbol_string input_txt;
 	// ..
+
+	Report_UI reportUI;
+
+	string log_filename;
 
 	tui::init();
 
@@ -92,8 +102,13 @@ int main()
 					if (customerHP == "") {// 사용자HP미입력, 주문 완료
 						sell_key = 0;
 						wrongFormat = false;
+						// !!!!
 						struct OrderInfo thisorder = sell.finish(customerHP); // USE THIS STRUCT IF NEEDED
-						filelog(thisorder);
+						log_filename = filelog(thisorder);
+						Report report = Report(log_filename);
+						report.editReport(to_string(thisorder.number));
+						reportUI.makeList();
+
 					}
 					else if (IsPhoneNumberValid(customerHP)) {
 						wrongFormat = false;
@@ -102,7 +117,7 @@ int main()
 							sell_key = 0;
 							wrongFormat = false;
 							struct OrderInfo thisorder = sell.finish(customerHP); // USE THIS STRUCT IF NEEDED
-							filelog(thisorder);
+							log_filename = filelog(thisorder);
 						}
 						else { 
 							sell_key = 2;
@@ -120,12 +135,13 @@ int main()
 				if (tui::input::isKeyPressed('Y') || tui::input::isKeyPressed('y')) { //쿠폰사용, 주문완료
 					sell_key = 0;
 					struct OrderInfo thisorder = sell.finish(customerHP, true); // USE THIS STRUCT IF NEEDED
-					filelog(thisorder);
+					log_filename = filelog(thisorder);
+					
 				}
 				if (tui::input::isKeyPressed('N') || tui::input::isKeyPressed('n')) { //쿠폰미사용, 주문완료
 					sell_key = 0;
 					struct OrderInfo thisorder = sell.finish(customerHP); // USE THIS STRUCT IF NEEDED
-					filelog(thisorder);
+					log_filename = filelog(thisorder);
 				}
 				break;
 			}
@@ -136,11 +152,12 @@ int main()
         				
 			break;
 		case 2:
+			reportUI.drawUI();
 			break;
 		case 3:
 			break;
 		}
-
+		
 		tui::output::display();
 	}
 	customerManager.~DatabaseManager();

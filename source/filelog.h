@@ -21,7 +21,7 @@ string changeNum(int num) {
     return temp;
 }
 
-int filelog(OrderInfo orderinfo) {
+std::string filelog(OrderInfo orderinfo) {
     //-------------------------------------------------------------------------------
     std::time_t time_now = std::chrono::system_clock::to_time_t(livetime());
     auto time_point = std::chrono::system_clock::to_time_t(livetime());
@@ -41,12 +41,12 @@ int filelog(OrderInfo orderinfo) {
     //--------------------------------------------------------------------------여기까지 현재시간 저장 코드
 
 
-    std::string FileMake = date + ".csv"; //파일로그 파일경로 수정필요 앞에 문자열 경로 추가"..\\..\\" 
+    std::string FileMake = "../source/log/" +date + ".csv"; //파일로그 파일경로 수정필요 앞에 문자열 경로 추가"..\\..\\" 
 
     std::ofstream outputFile(FileMake, std::ios::app); //파일생성, 파일작성
     if (!outputFile) {
         std::cerr << "파일을 열 수 없습니다." << std::endl;
-        return 1;
+        return "0";
     }
     else {
         string orderdata;
@@ -61,6 +61,5 @@ int filelog(OrderInfo orderinfo) {
         
         outputFile.close();
     }
-
-    return 0;
+    return date;
 }
