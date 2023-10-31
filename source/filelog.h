@@ -40,7 +40,7 @@ int filelog(OrderInfo orderinfo) {
     std::string time = hour + minute + second;
     //--------------------------------------------------------------------------여기까지 현재시간 저장 코드
     
-    std::string getFilenameForToday() {
+    std::string getFilename() {
     auto now = std::chrono::system_clock::now();
     std::time_t time_now = std::chrono::system_clock::to_time_t(now);
     struct std::tm timeinfo;
