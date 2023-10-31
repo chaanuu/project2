@@ -3,8 +3,6 @@
 #include <regex>
 #include <cstdio>
 #include "TUI/tui.h"
-#include "filelog.h"
-
 
 class admin_UI {
 protected:
@@ -59,7 +57,7 @@ public:
             std::string date;
             tui::output::draw(input_date);
             std::cin >> date;
-            filename = getFilename();
+            filename = date + ".csv"; 
             if (remove(filename.c_str()) == 0) {
                 tui::output::draw(file_delete);
             }
