@@ -2,7 +2,6 @@
 #include "menu.h"
 #include "sell.h"
 #include "filelog.h"
-#include "customer.h"
 #include "report.h"
 
 #include <cmath>
@@ -16,15 +15,17 @@ bool IsPhoneNumberValid(const string& str) {
 	return std::regex_match(str, pattern);
 }
 
-void process_order(string customerHP) {
-
+void process_order(string customerHP, Sell& sell, Report_UI& reportUI, bool isCouponUsed) {
+	struct OrderInfo thisorder = sell.finish(customerHP, isCouponUsed); // USE THIS STRUCT IF NEEDED
+	string log_filename = filelog(thisorder);
+	Report report = Report(log_filename);
+	report.editReport(to_string(thisorder.number));
+	reportUI.makeList();
 }
-
 
 int main()
 {
 	read_MenuDB();
-	DatabaseManager customerManager;
 	Sell sell;
 	//Sleep(500);
 
@@ -60,7 +61,6 @@ int main()
 
 	Report_UI reportUI;
 
-	string log_filename;
 
 	tui::init();
 
@@ -102,13 +102,7 @@ int main()
 					if (customerHP == "") {// 사용자HP미입력, 주문 완료
 						sell_key = 0;
 						wrongFormat = false;
-						// !!!!
-						struct OrderInfo thisorder = sell.finish(customerHP); // USE THIS STRUCT IF NEEDED
-						log_filename = filelog(thisorder);
-						Report report = Report(log_filename);
-						report.editReport(to_string(thisorder.number));
-						reportUI.makeList();
-
+						process_order(customerHP, sell, reportUI, false);
 					}
 					else if (IsPhoneNumberValid(customerHP)) {
 						wrongFormat = false;
@@ -116,8 +110,7 @@ int main()
 						if (coupons == 0) { // 쿠폰없음, 주문완료
 							sell_key = 0;
 							wrongFormat = false;
-							struct OrderInfo thisorder = sell.finish(customerHP); // USE THIS STRUCT IF NEEDED
-							log_filename = filelog(thisorder);
+							process_order(customerHP, sell, reportUI, false);
 						}
 						else { 
 							sell_key = 2;
@@ -134,14 +127,11 @@ int main()
 				sell.drawUI2(coupons);
 				if (tui::input::isKeyPressed('Y') || tui::input::isKeyPressed('y')) { //쿠폰사용, 주문완료
 					sell_key = 0;
-					struct OrderInfo thisorder = sell.finish(customerHP, true); // USE THIS STRUCT IF NEEDED
-					log_filename = filelog(thisorder);
-					
+					process_order(customerHP, sell, reportUI, true);
 				}
 				if (tui::input::isKeyPressed('N') || tui::input::isKeyPressed('n')) { //쿠폰미사용, 주문완료
 					sell_key = 0;
-					struct OrderInfo thisorder = sell.finish(customerHP); // USE THIS STRUCT IF NEEDED
-					log_filename = filelog(thisorder);
+					process_order(customerHP, sell, reportUI, false);
 				}
 				break;
 			}
@@ -160,6 +150,5 @@ int main()
 		
 		tui::output::display();
 	}
-	customerManager.~DatabaseManager();
 	return 0;
 }
