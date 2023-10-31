@@ -4,6 +4,7 @@
 #include "filelog.h"
 #include "report.h"
 #include "admin.h"
+#include "queue.h"
 
 #include <cmath>
 #include <Windows.h>
@@ -16,8 +17,9 @@ bool IsPhoneNumberValid(const string& str) {
 	return std::regex_match(str, pattern);
 }
 
-void process_order(string customerHP, Sell& sell, Report_UI& reportUI, bool isCouponUsed) {
+void process_order(string customerHP, Sell& sell, Report_UI& reportUI, Queue& queue, bool isCouponUsed) {
 	struct OrderInfo thisorder = sell.finish(customerHP, isCouponUsed); // USE THIS STRUCT IF NEEDED
+	queue.addOrder(thisorder);
 	string log_filename = filelog(thisorder);
 	Report report = Report(log_filename);
 	report.editReport(to_string(thisorder.number));
@@ -28,6 +30,7 @@ int main()
 {
 	read_MenuDB();
 	Sell sell;
+	Queue queue;
 	//Sleep(500);
 
 	//BOX
@@ -58,7 +61,8 @@ int main()
 	input_SELL.setPositionInfo({ {0,0}, {10,50} });
 	string customerHP = "/0";
 	tui::symbol_string input_txt;
-	// ..
+
+	unsigned int queue_key = 0;
 
 	Report_UI reportUI;
 
@@ -114,7 +118,7 @@ int main()
 					if (customerHP == "") {// 사용자HP미입력, 주문 완료
 						sell_key = 0;
 						wrongFormat = false;
-						process_order(customerHP, sell, reportUI, false);
+						process_order(customerHP, sell, reportUI, queue, false);
 					}
 					else if (IsPhoneNumberValid(customerHP)) {
 						wrongFormat = false;
@@ -122,7 +126,7 @@ int main()
 						if (coupons == 0) { // 쿠폰없음, 주문완료
 							sell_key = 0;
 							wrongFormat = false;
-							process_order(customerHP, sell, reportUI, false);
+							process_order(customerHP, sell, reportUI,queue, false);
 						}
 						else { 
 							sell_key = 2;
@@ -139,19 +143,37 @@ int main()
 				sell.drawUI2(coupons);
 				if (tui::input::isKeyPressed('Y') || tui::input::isKeyPressed('y')) { //쿠폰사용, 주문완료
 					sell_key = 0;
-					process_order(customerHP, sell, reportUI, true);
+					process_order(customerHP, sell, reportUI,queue, true);
 				}
 				if (tui::input::isKeyPressed('N') || tui::input::isKeyPressed('n')) { //쿠폰미사용, 주문완료
 					sell_key = 0;
-					process_order(customerHP, sell, reportUI, false);
+					process_order(customerHP, sell, reportUI,queue, false);
 				}
 				break;
 			}
 
 		case 1:
-			//queue.draw_UI();
-    		//queue.printOrders();
-        				
+			queue.drawUI();
+			queue.printQueue();
+
+			switch (queue_key) {
+			case 0: // 기본 모드
+				if (tui::input::isKeyPressed(tui::input::KEY::DEL)) {
+					queue_key = 1; // 삭제 모드로 전환
+				}
+				break;
+
+			case 1: // 삭제 모드
+				if (tui::input::isKeyPressed(tui::input::KEY::F1) ||
+					tui::input::isKeyPressed(tui::input::KEY::F2) ||
+					tui::input::isKeyPressed(tui::input::KEY::F3) ||
+					tui::input::isKeyPressed(tui::input::KEY::F4) ||
+					tui::input::isKeyPressed(tui::input::KEY::F5)) {
+					queue.removeQueue();  // Queue 클래스 내부에서 키 검사 및 삭제 수행
+					queue_key = 0;  // 다시 기본 모드로 전환
+				}
+				break;
+			}
 			break;
 		case 2:
 			reportUI.drawUI();
