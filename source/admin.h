@@ -11,7 +11,6 @@ protected:
     tui::text access_wrong;
     tui::text admin_access;
     tui::text select_menu;
-    tui::text select_menu_wrong;
     tui::text current_password;
     tui::text current_password_wrong;
     tui::text new_password;
@@ -27,8 +26,7 @@ public:
         access_to_admin.setText("Enter your password for administrator mode access.");
         access_wrong.setText("! incorrect password. Type it again please.");
         admin_access.setText("You have accessed administrator mode.");
-        select_menu.setText("1) Reset Logs 2) Change the administrator password 3) Quit");
-        select_menu_wrong.setText("Invalid input.");
+        select_menu.setText("Press the key : INS) Reset Logs DEL) Change the administrator password END) Quit");
         current_password.setText("Please enter your current password");
         current_password_wrong.setText("! incorrect password. Type it again please.");
         new_password.setText("Please enter your new password");
@@ -42,29 +40,37 @@ public:
 
 class admin : admin_UI {
 private:
-        std::string password_IV = "12345678"; 
-        std::string filename;
-
+    std::string password_IV = "12345678";
 public:
-        int selectMenu() {
-            tui::output::draw(admin_access);
-            tui::output::draw(select_menu);
-            int menu;
-            std::cin >> menu;
-            return menu;
-        }
 
-       bool fileExists(const std::string& name) {
+    bool checkPassword(const std::string& input) {
+        return input == password_IV;
+    }
+
+    void drawA2() {
+        tui::output::draw(Admin.access_to_admin);
+    }
+
+    void drawA3() {
+        tui::output::draw(Admin.access_wrong);
+    }
+
+    int selectMenu() {
+        tui::output::draw(admin_access);
+        tui::output::draw(select_menu);
+    }
+
+    bool fileExists(const std::string& name) {
         std::ifstream f(name.c_str());
         return f.good();
     }
 
     void clear() {
-        std::string date;
-        tui::output::draw(input_date);
+        tui::output::draw(input_date)
+            std::string date;
         std::cin >> date;
-        filename = date + ".csv";
-        
+        std::string filename = date + ".csv";
+
         if (fileExists(filename) && remove(filename.c_str()) == 0) {
             tui::output::draw(file_delete);
         }
@@ -73,71 +79,92 @@ public:
         }
     }
 
-        void change() {
-            while (true) {
-                tui::output::draw(current_password);
-                std::cin.ignore();  
-                std::string password_IP;   
-                getline(std::cin, password_IP);
-                if (password_IV == password_IP) {
-                    break;
-                }
-                else {
-                    tui::output::draw(current_password_wrong);
-                }
+    void change() {
+        while (true) {
+            tui::output::draw(current_password);
+            std::cin.ignore();
+            std::string password_IP;
+            getline(std::cin, password_IP);
+            if (password_IV == password_IP) {
+                break;
             }
-            while (true) {
-                std::string Newpassword_IP;
-                tui::output::draw(new_password);
-                std::cin >> Newpassword_IP;
-                std::cin.ignore();
-                std::regex pattern(R"(^[0-9a-zA-Z]*$)");
-
-                if (std::regex_match(Newpassword_IP, pattern)) {
-                    tui::output::draw(change_success);
-                    password_IV = Newpassword_IP;
-                    break;
-                }
-                else {
-                    tui::output::draw(new_password_wrong);
-                }
+            else {
+                tui::output::draw(current_password_wrong);
             }
         }
+        while (true) {
+            std::string Newpassword_IP;
+            tui::output::draw(new_password);
+            std::cin >> Newpassword_IP;
+            std::cin.ignore();
+            std::regex pattern(R"(^[0-9a-zA-Z]*$)");
 
-        void Exit() {
-            exit(0);
+            if (std::regex_match(Newpassword_IP, pattern)) {
+                tui::output::draw(change_success);
+                password_IV = Newpassword_IP;
+                break;
+            }
+            else {
+                tui::output::draw(new_password_wrong);
+            }
         }
+    }
 
- }
+
+};
 
 int main() {
+    unsigned int admin_key = 0;
+    unsigned int tab_key = 0;
+
     admin Admin;
-    while (true) {
-        tui::output::draw(Admin.access_to_admin);
-        std::string password_IP;
-        getline(std::cin, password_IP);
-        if (Admin.password_IV == password_IP) {
-            break;
+    
+    bool admin_login = false;
+   
+
+    switch (tab_key) {
+    case 0:
+        while (admin_login == false) {
+            Admin.drawA2();
+            std::string password_IP;
+            getline(std::cin, password_IP);
+            if (Admin.checkPassword(password_IP)) {
+                tab_key = 1;
+                admin_login = true;
+            }
+            else {
+                Admin.drawA3();
+            }
         }
-        else {
-            tui::output::draw(Admin.access_wrong);
+        break;
+    case 1:
+        while (!tui::input::isKeyPressed(tui::input::KEY::END)) {
+            switch (admin_key) {
+            case 0:
+                Admin.selectMenu();
+                if (tui::input::isKeyPressed(tui::input::KEY::INS)) {
+                    admin_key = 1;
+                }
+                if (tui::input::isKeyPressed(tui::input::KEY::DEL)) {
+                    admin_key = 2;
+                }
+                break;
+            case 1:
+                Admin.clear();
+                admin_key = 0;
+                break;
+            case 2:
+                Admin.change();
+                admin_key = 0;
+                break;
+            }
         }
+        tab_key = 2;
+        break;
+    case 2:
+        setSelected(0);
+        break;
     }
-    while (true) {
-        int menu = Admin.selectMenu();
-        switch (menu) {
-        case 1:
-            Admin.clear();
-            break;
-        case 2:
-            Admin.change();
-            break;
-        case 3:
-            Admin.Exit();
-            break;
-        default:
-            tui::output::draw(Admin.select_menu_wrong);
-        }
-    }
+   
     return 0;
 }
