@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <regex>
 #include <cstdio>
@@ -41,7 +42,7 @@ public:
 
 class admin : admin_UI {
 private:
-        string password_IV = "12345678"; 
+        std::string password_IV = "12345678"; 
         std::string filename;
 
 public:
@@ -49,31 +50,35 @@ public:
             tui::output::draw(admin_access);
             tui::output::draw(select_menu);
             int menu;
-            cin >> menu;
+            std::cin >> menu;
             return menu;
         }
 
-        void clear() {
-            std::string date;
-            tui::output::draw(input_date);
-            std::cin >> date;
-            filename = date + ".csv"; 
-            if (remove(filename.c_str()) == 0) {
-                tui::output::draw(file_delete);
-            }
-            else {
-                tui::output::draw(file_delete_wrong);
-            }
+       bool fileExists(const std::string& name) {
+        std::ifstream f(name.c_str());
+        return f.good();
+    }
 
-
+    void clear() {
+        std::string date;
+        tui::output::draw(input_date);
+        std::cin >> date;
+        filename = date + ".csv";
+        
+        if (fileExists(filename) && remove(filename.c_str()) == 0) {
+            tui::output::draw(file_delete);
         }
+        else {
+            tui::output::draw(file_delete_wrong);
+        }
+    }
 
         void change() {
             while (true) {
                 tui::output::draw(current_password);
-                cin.ignore();
-                string password_IP;
-                getline(cin, password_IP);
+                std::cin.ignore();  
+                std::string password_IP;   
+                getline(std::cin, password_IP);
                 if (password_IV == password_IP) {
                     break;
                 }
@@ -85,7 +90,8 @@ public:
                 std::string Newpassword_IP;
                 tui::output::draw(new_password);
                 std::cin >> Newpassword_IP;
-                std::regex pattern(R"(^[0-9|a-z|A-Z]*$)");
+                std::cin.ignore();
+                std::regex pattern(R"(^[0-9a-zA-Z]*$)");
 
                 if (std::regex_match(Newpassword_IP, pattern)) {
                     tui::output::draw(change_success);
@@ -102,35 +108,36 @@ public:
             exit(0);
         }
 
-        int main() {
-            while (true) {
-                tui::output::draw(access_to_admin);
-                string password_IP;
-                getline(cin, password_IP);
-                if (password_IV == password_IP) {
-                    break;
-                }
-                else {
-                    tui::output::draw(access_wrong);
-                }
-            }
-            while (true) {
-                int menu = selectMenu();
-                switch (menu) {
-                case 1:
-                    clear();
-                    break;
-                case 2:
-                    change();
-                    break;
-                case 3:
-                    Exit();
-                    break;
-                default:
-                    tui::output::draw(select_menu_wrong);
-                }
-            }
-            return 0;
-        }
-
  }
+
+int main() {
+    admin Admin;
+    while (true) {
+        tui::output::draw(Admin.access_to_admin);
+        std::string password_IP;
+        getline(std::cin, password_IP);
+        if (Admin.password_IV == password_IP) {
+            break;
+        }
+        else {
+            tui::output::draw(Admin.access_wrong);
+        }
+    }
+    while (true) {
+        int menu = Admin.selectMenu();
+        switch (menu) {
+        case 1:
+            Admin.clear();
+            break;
+        case 2:
+            Admin.change();
+            break;
+        case 3:
+            Admin.Exit();
+            break;
+        default:
+            tui::output::draw(Admin.select_menu_wrong);
+        }
+    }
+    return 0;
+}
