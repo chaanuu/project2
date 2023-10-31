@@ -3,6 +3,7 @@
 #include "sell.h"
 #include "filelog.h"
 #include "report.h"
+#include "admin.h"
 
 #include <cmath>
 #include <Windows.h>
@@ -60,6 +61,17 @@ int main()
 	// ..
 
 	Report_UI reportUI;
+
+	unsigned int admin_key = 0;
+	unsigned int tab_key = 0;
+	admin Admin;
+	string password_IP = "";
+	tui::input_text input_ADMIN({ {20,2}, {0,0} });
+	input_ADMIN.setPositionInfo({ {0,0}, {10,50} });
+	bool wrongPassword = false;
+	bool isValidPW = true;
+	string date_admin;
+	regex pattern(R"(^[0-9a-zA-Z]*$)");
 
 
 	tui::init();
@@ -145,6 +157,88 @@ int main()
 			reportUI.drawUI();
 			break;
 		case 3:
+			switch (tab_key) {
+			case 0:
+				Admin.drawA2(wrongPassword);
+				tui::output::draw(input_ADMIN);
+				input_ADMIN.activate();
+				if (tui::input::isKeyPressed(tui::input::END)) {
+					tui::symbol_string temp_string = input_ADMIN.getText();
+					password_IP = temp_string.getStdString();
+					// 비밀번호 검사
+					if (Admin.checkPassword(password_IP)) {
+						tab_key = 1;
+						wrongPassword = false;
+					}
+					else {
+						wrongPassword = true;
+					}
+					input_ADMIN.setText("");
+				}
+				break;
+			case 1:
+				Admin.selectMenu();
+				if (tui::input::isKeyPressed(tui::input::KEY::INS)) {
+					tab_key = 2;
+				}
+				if (tui::input::isKeyPressed(tui::input::KEY::DEL)) {
+					tab_key = 3;
+				}
+				if (tui::input::isKeyPressed(tui::input::KEY::ENTER)) {
+					tabs.setSelected(0);
+				}
+				break;
+			case 2:
+				Admin.draw_clear();
+				tui::output::draw(input_ADMIN);
+				input_ADMIN.activate();
+				if (tui::input::isKeyPressed(tui::input::END)) {
+					tui::symbol_string temp_string = input_ADMIN.getText();
+					date_admin = temp_string.getStdString();
+					string filename = date_admin + ".csv";
+					Admin.clear(filename);
+					input_ADMIN.setText("");
+					tab_key = 1;
+				}
+				break;
+			case 3: // change pw
+				Admin.drawA3(wrongPassword);
+				tui::output::draw(input_ADMIN);
+				input_ADMIN.activate();
+				if (tui::input::isKeyPressed(tui::input::END)) {
+					tui::symbol_string temp_string = input_ADMIN.getText();
+					password_IP = temp_string.getStdString();
+					// 비밀번호 검사
+					if (Admin.checkPassword(password_IP)) {
+						tab_key = 4;
+						wrongPassword = false;
+					}
+					else {
+						wrongPassword = true;
+					}
+					input_ADMIN.setText("");
+				}
+				break;
+			case 4: // new pw
+				Admin.drawA4(isValidPW);
+				tui::output::draw(input_ADMIN);
+				input_ADMIN.activate();
+				if (tui::input::isKeyPressed(tui::input::END)) {
+					tui::symbol_string temp_string = input_ADMIN.getText();
+					password_IP = temp_string.getStdString();
+					// 비밀번호 검사
+					if (regex_match(password_IP, pattern)) {
+						tab_key = 1;
+						isValidPW = true;
+					}
+					else {
+						isValidPW = false;
+					}
+					input_ADMIN.setText("");
+				}
+				break;
+			}
+
 			break;
 		}
 		
