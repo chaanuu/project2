@@ -114,14 +114,12 @@ public:
 };
 
 int main() {
+    
     unsigned int admin_key = 0;
     unsigned int tab_key = 0;
-
     admin Admin;
-    
     bool admin_login = false;
    
-
     switch (tab_key) {
     case 0:
         while (admin_login == false) {
