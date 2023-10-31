@@ -59,7 +59,7 @@ public:
             std::string date;
             tui::output::draw(input_date);
             std::cin >> date;
-            filename = getFilenameForToday();
+            filename = getFilename();
             if (remove(filename.c_str()) == 0) {
                 tui::output::draw(file_delete);
             }
