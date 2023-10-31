@@ -39,20 +39,6 @@ int filelog(OrderInfo orderinfo) {
     std::string date = year + month + day;
     std::string time = hour + minute + second;
     //--------------------------------------------------------------------------여기까지 현재시간 저장 코드
-    
-    std::string getFilename() {
-    auto now = std::chrono::system_clock::now();
-    std::time_t time_now = std::chrono::system_clock::to_time_t(now);
-    struct std::tm timeinfo;
-    localtime_s(&timeinfo, &time_now);
-
-    std::string year = std::to_string(timeinfo.tm_year + 1900);
-    std::string month = changeNum(timeinfo.tm_mon + 1);
-    std::string day = changeNum(timeinfo.tm_mday);
-
-    return year + month + day + ".csv";
-    }
-    ------------------------------------------------------------------------------  파일명 반환함수 
         
     std::string FileMake = date + ".csv"; //파일로그 파일경로 수정필요 앞에 문자열 경로 추가"..\\..\\" 
 
