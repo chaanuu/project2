@@ -135,10 +135,18 @@ std::vector<std::string>* Report::readFile(const std::string& str) {
     }
 
     while (1) {
-        strs->pop_back();
         std::vector<std::string>::reverse_iterator rit = strs->rbegin();
-        if (*rit != *(rit + 1))
+        if (rit == strs->rend()-1) {
             break;
+        }
+        else {
+            if (*rit == *(rit + 1) || (*rit) == "") {
+                strs->pop_back();
+            }
+            else {
+                break;
+            }
+        }
     }
     in.close();
     return strs;
