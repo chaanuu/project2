@@ -260,8 +260,17 @@ public:
         }
     }
 
-    void update(Report report_instance) {
+    void update(Report& report_instance) {
         report_string = report_instance.printReport();
         report.setText(report_string);
+    }
+
+    void load_report() {
+        int position = dayList.getCurrentPosition();
+        tui::list_entry currentEntry = this->dayList.getEntryAt(position);
+        tui::symbol_string reportDay = currentEntry.getFileName();
+        std::string fileName = reportDay.getStdString();
+        Report report = Report(fileName);
+        update(report);
     }
 };
