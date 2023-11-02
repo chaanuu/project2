@@ -211,7 +211,7 @@ int main()
 				}
 				if (tui::input::isKeyPressed(tui::input::KEY::ENTER)) {
 					tabs.setSelected(0);
-				}
+				} 
 				break;
 			case 2:
 				Admin.draw_clear();
