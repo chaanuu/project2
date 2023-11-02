@@ -41,7 +41,7 @@ std::string filelog(OrderInfo orderinfo) {
     //--------------------------------------------------------------------------여기까지 현재시간 저장 코드
 
 
-    std::string FileMake = "../../source/log/" +date + ".csv"; //파일로그 파일경로 수정필요 앞에 문자열 경로 추가"..\\..\\" 
+    std::string FileMake = SOURCE_FILE_LOCATION"log/" +date + ".csv"; //파일로그 파일경로 수정필요 앞에 문자열 경로 추가"..\\..\\" 
 
     std::ofstream outputFile(FileMake, std::ios::app); //파일생성, 파일작성
     if (!outputFile) {

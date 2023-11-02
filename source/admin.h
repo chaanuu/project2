@@ -5,7 +5,7 @@
 #include <cstdio>
 #include "TUI/tui.h"
 
-#define dir "../source/log/";
+#define dir SOURCE_FILE_LOCATION"log/";
 
 class admin_UI {
 public:
@@ -106,7 +106,7 @@ public:
     }
 
     void clear(string filename) {
-        std::string file_location = "../source/log/" + filename;
+        std::string file_location = SOURCE_FILE_LOCATION"log/" + filename;
         if (fileExists(file_location)) {
             remove(file_location.c_str());
         }

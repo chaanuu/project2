@@ -1,11 +1,12 @@
 #pragma once
 
+#include "path.h"
 #include <map>
 #include <string>
 #include <iostream>
 #include <fstream>
 
-#define MENUDB_PATH "../../source/database/menuDB.CSV"
+// #define MENUDB_PATH "../source/database/menuDB.CSV"
 
 using namespace std;
 
@@ -18,7 +19,7 @@ map<int, tuple<string, int>> menuMap;
 void read_MenuDB() {
 	fstream menuDB;
 
-	menuDB.open(MENUDB_PATH, ios::in);
+	menuDB.open(SOURCE_FILE_LOCATION"database/menuDB.csv", ios::in);
 	if (!menuDB.is_open()) {
 		// menuDB file could not open
 		printf("menuDB 열기 실패 \n");

@@ -1,4 +1,5 @@
 #include "TUI/tui.h"
+#include "path.h"
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -32,10 +33,10 @@ public:
     static std::vector<std::string> readExistingFile();
 };
 
-std::string Report::folder = "../../source/Daily/";
+std::string Report::folder = SOURCE_FILE_LOCATION"Daily/";
 
 void Report::createMenucode() {
-    std::ifstream in("../../source/database/menuDB.CSV");
+    std::ifstream in(SOURCE_FILE_LOCATION"database/menuDB.CSV");
     std::string s;
 
     while (in) {
@@ -50,7 +51,7 @@ Report::Report(std::string day) {
     createMenucode();
     Report::day = day;
     Report::name = day;
-    Report::folder = "../../source/Daily/";
+    Report::folder = SOURCE_FILE_LOCATION"Daily/";
 }
 
 void Report::newReportFile(std::string fileName) {
@@ -58,7 +59,7 @@ void Report::newReportFile(std::string fileName) {
 
     out << "0\n";
 
-    std::ifstream in("../../source/database/menuDB.CSV");
+    std::ifstream in(SOURCE_FILE_LOCATION"database/menuDB.CSV");
     std::string s;
 
     while (in) {
@@ -144,7 +145,7 @@ std::vector<std::string>* Report::readFile(const std::string& str) {
 }
 
 std::vector<std::string>* Report::readLogfile(std::string orderNum) {
-    std::vector<std::string>* logs = readFile("../../source/log/" + day + ".csv");
+    std::vector<std::string>* logs = readFile(SOURCE_FILE_LOCATION"log/" + day + ".csv");
     std::vector<std::string> logstr;
 
     for (std::vector<std::string>::reverse_iterator itr = logs->rbegin(); itr != logs->rend(); ++itr) {
@@ -196,7 +197,7 @@ tui::symbol_string Report::printReport() {
 std::vector<std::string> Report::readExistingFile() {
     std::vector<std::string> files;
     try {
-        for (const auto& entry : std::filesystem::directory_iterator(std::filesystem::current_path() / "../../source/Daily")) {
+        for (const auto& entry : std::filesystem::directory_iterator(std::filesystem::current_path() / SOURCE_FILE_LOCATION"Daily")) {
             std::cout << entry.path() << std::endl;
             files.push_back(entry.path().filename().string());
         }
