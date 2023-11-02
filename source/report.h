@@ -266,8 +266,8 @@ public:
     }
 
     void load_report() {
-        int position = dayList.getCurrentPosition();
-        tui::list_entry currentEntry = this->dayList.getEntryAt(position);
+        int position = dayList->getCurrentPosition();
+        tui::list_entry currentEntry = dayList->getEntryAt(position);
         tui::symbol_string reportDay = currentEntry.getFileName();
         std::string fileName = reportDay.getStdString();
         Report report = Report(fileName);
