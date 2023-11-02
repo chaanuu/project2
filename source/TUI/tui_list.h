@@ -121,6 +121,10 @@ namespace tui
 		int getMenuID() {
 			return menuID;
 		}
+
+		symbol_string getFileName() {
+			return name;
+		}
 	};
 
 	struct list : surface, active_element, list_appearance

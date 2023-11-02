@@ -177,6 +177,9 @@ int main()
 			break;
 		case 2:
 			reportUI.drawUI();
+			if (tui::input::isKeyPressed(tui::input::ENTER)) {
+				reportUI.load_report();
+			}
 			break;
 		case 3:
 			switch (tab_key) {
