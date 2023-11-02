@@ -92,7 +92,7 @@ public:
         std::string sql = "SELECT TotalAmount, CouponsUsed FROM Membership WHERE PhoneNumber = ?";
 
         if (sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
-            return -1;
+            return 0;
         }
 
         sqlite3_bind_text(stmt, 1, phoneNumber.c_str(), -1, SQLITE_STATIC);
@@ -107,7 +107,7 @@ public:
         }
 
         sqlite3_finalize(stmt);
-        return -1;
+        return 0;
     }
 
     bool useCoupon(const std::string& phoneNumber) {

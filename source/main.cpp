@@ -6,6 +6,7 @@
 #include "admin.h"
 #include "queue.h"
 #include "customer.h"
+#include "path.h"
 
 #include <cmath>
 #include <Windows.h>
@@ -23,7 +24,8 @@ void process_order(string customerHP, Sell& sell, Report_UI& reportUI, Queue& qu
 	queue.addOrder(thisorder);
 	string log_filename = filelog(thisorder);
 	Report report = Report(log_filename);
-	if(isCouponUsed) db.executeOrder(customerHP, )
+	if (isCouponUsed) db.executeOrder(customerHP, thisorder.getTotalPrice() - 1000);
+	else db.executeOrder(customerHP, thisorder.getTotalPrice());
 	report.editReport(to_string(thisorder.number));
 	
 	reportUI.makeList();
@@ -34,7 +36,7 @@ int main()
 	read_MenuDB();
 	Sell sell;
 	Queue queue;
-	MembershipDB db = MembershipDB("couponbook.db");
+	MembershipDB db = MembershipDB(SOURCE_FILE_LOCATION"couponbook.db");
 	if (!db.open()) {
 		std::cerr << "Failed to open the database." << std::endl;
 		return 1;
