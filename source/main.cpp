@@ -5,6 +5,7 @@
 #include "report.h"
 #include "admin.h"
 #include "queue.h"
+#include "customer.h"
 
 #include <cmath>
 #include <Windows.h>
@@ -17,12 +18,14 @@ bool IsPhoneNumberValid(const string& str) {
 	return std::regex_match(str, pattern);
 }
 
-void process_order(string customerHP, Sell& sell, Report_UI& reportUI, Queue& queue, bool isCouponUsed) {
+void process_order(string customerHP, Sell& sell, Report_UI& reportUI, Queue& queue, MembershipDB& db, bool isCouponUsed) {
 	struct OrderInfo thisorder = sell.finish(customerHP, isCouponUsed); // USE THIS STRUCT IF NEEDED
 	queue.addOrder(thisorder);
 	string log_filename = filelog(thisorder);
 	Report report = Report(log_filename);
+	if(isCouponUsed) db.executeOrder(customerHP, )
 	report.editReport(to_string(thisorder.number));
+	
 	reportUI.makeList();
 }
 
@@ -31,6 +34,11 @@ int main()
 	read_MenuDB();
 	Sell sell;
 	Queue queue;
+	MembershipDB db = MembershipDB("couponbook.db");
+	if (!db.open()) {
+		std::cerr << "Failed to open the database." << std::endl;
+		return 1;
+	}
 	//Sleep(500);
 
 	//BOX
@@ -62,10 +70,13 @@ int main()
 	string customerHP = "/0";
 	tui::symbol_string input_txt;
 
+	// variables for QUEUE tab
 	unsigned int queue_key = 0;
 
+	// variables for REPORT tab
 	Report_UI reportUI;
 
+	// variables for ADMIN tab
 	unsigned int admin_key = 0;
 	unsigned int tab_key = 0;
 	admin Admin;
@@ -118,15 +129,15 @@ int main()
 					if (customerHP == "") {// 사용자HP미입력, 주문 완료
 						sell_key = 0;
 						wrongFormat = false;
-						process_order(customerHP, sell, reportUI, queue, false);
+						process_order(customerHP, sell, reportUI, queue, db, false);
 					}
 					else if (IsPhoneNumberValid(customerHP)) {
 						wrongFormat = false;
-						coupons = 2; //여기를 쿠폰확인 함수로 수정
+						coupons = db.getCouponsAvailable(customerHP); //여기를 쿠폰확인 함수로 수정
 						if (coupons == 0) { // 쿠폰없음, 주문완료
 							sell_key = 0;
 							wrongFormat = false;
-							process_order(customerHP, sell, reportUI,queue, false);
+							process_order(customerHP, sell, reportUI,queue, db, false);
 						}
 						else { 
 							sell_key = 2;
@@ -143,11 +154,12 @@ int main()
 				sell.drawUI2(coupons);
 				if (tui::input::isKeyPressed('Y') || tui::input::isKeyPressed('y')) { //쿠폰사용, 주문완료
 					sell_key = 0;
-					process_order(customerHP, sell, reportUI,queue, true);
+					db.useCoupon(customerHP);
+					process_order(customerHP, sell, reportUI,queue, db, true);
 				}
 				if (tui::input::isKeyPressed('N') || tui::input::isKeyPressed('n')) { //쿠폰미사용, 주문완료
 					sell_key = 0;
-					process_order(customerHP, sell, reportUI,queue, false);
+					process_order(customerHP, sell, reportUI,queue, db, false);
 				}
 				break;
 			}
@@ -269,5 +281,6 @@ int main()
 		
 		tui::output::display();
 	}
+	db.~MembershipDB();
 	return 0;
 }

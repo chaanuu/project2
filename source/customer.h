@@ -1,111 +1,184 @@
-#pragma once
-
-#include "sqlite3.h"
-
 #include <iostream>
 #include <string>
+#include "sqlite3.h"
 
-class DatabaseManager {
+class MembershipDB {
 private:
-    const char* DB_FILE;
-    sqlite3* db = nullptr;
+    sqlite3* db;
+    std::string dbPath;
+
+    bool executeSQL(const std::string& sql) {
+        char* errMsg = nullptr;
+        int rc = sqlite3_exec(db, sql.c_str(), nullptr, nullptr, &errMsg);
+        if (rc != SQLITE_OK) {
+            std::cerr << "SQL error: " << errMsg << std::endl;
+            sqlite3_free(errMsg);
+            return false;
+        }
+        return true;
+    }
 
 public:
-    DatabaseManager() : DB_FILE("customer.db") {
-        if (!openDatabase()) {
-            exit(0);
-        }
-        else {
-            printf("customer.db 열기 성공 \n");
-        }
-    }
+    MembershipDB(const std::string& dbPath) : dbPath(dbPath), db(nullptr) {}
 
-    ~DatabaseManager() {
-        closeDatabase();
-    }
-
-    bool openDatabase() {
-        int result = sqlite3_open(DB_FILE, &db);
-        if (result != SQLITE_OK) {
-            std::cerr << "SQLite3 열기 실패: " << sqlite3_errmsg(db) << std::endl;
-            return false;
-        }
-        return true;
-    }
-
-    void closeDatabase() {
+    ~MembershipDB() {
         if (db) {
             sqlite3_close(db);
-            db = nullptr;
         }
     }
 
-    bool createTable() {
-        const char* createTableSQL = "CREATE TABLE IF NOT EXISTS orders ("
-            "id INTEGER PRIMARY KEY AUTOINCREMENT, "
-            "phone_number TEXT, "
-            "order_count INTEGER)";
-        char* errorMessage = nullptr;
-        int result = sqlite3_exec(db, createTableSQL, 0, 0, &errorMessage);
-
-        if (result != SQLITE_OK) {
-            std::cerr << "테이블 생성 실패: " << errorMessage << std::endl;
-            sqlite3_free(errorMessage);
+    bool open() {
+        if (sqlite3_open(dbPath.c_str(), &db) != SQLITE_OK) {
+            std::cerr << "Cannot open database: " << sqlite3_errmsg(db) << std::endl;
             return false;
         }
-        return true;
+
+        std::string createTableSQL = R"(
+            CREATE TABLE IF NOT EXISTS Membership (
+                PhoneNumber TEXT PRIMARY KEY,
+                TotalAmount INTEGER NOT NULL,
+                CouponsUsed INTEGER DEFAULT 0
+            );
+        )";
+
+        return executeSQL(createTableSQL);
     }
 
-    bool processOrder(const std::string& phoneNumber) {
-        std::string query = "SELECT * FROM orders WHERE phone_number = ?";
-        sqlite3_stmt* stmt = nullptr;
+    bool executeOrder(const std::string& phoneNumber, int orderAmount) {
+        sqlite3_stmt* stmt;
+        std::string sql = "SELECT TotalAmount FROM Membership WHERE PhoneNumber = ?";
 
-        int result = sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, nullptr);
-        if (result != SQLITE_OK) {
-            std::cerr << "쿼리 준비 실패: " << sqlite3_errmsg(db) << std::endl;
+        if (sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
             return false;
         }
 
         sqlite3_bind_text(stmt, 1, phoneNumber.c_str(), -1, SQLITE_STATIC);
 
-        result = sqlite3_step(stmt);
-        if (result == SQLITE_ROW) {
-            // 이미 주문이 존재하는 경우, order_count를 증가시킴
-            int currentCount = sqlite3_column_int(stmt, 2);
-            currentCount++;
+        if (sqlite3_step(stmt) == SQLITE_ROW) {
+            // Customer exists, update their total amount
+            int currentAmount = sqlite3_column_int(stmt, 0);
             sqlite3_finalize(stmt);
 
-            query = "UPDATE orders SET order_count = ? WHERE phone_number = ?";
-            result = sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, nullptr);
-            if (result != SQLITE_OK) {
-                std::cerr << "쿼리 준비 실패: " << sqlite3_errmsg(db) << std::endl;
+            sql = "UPDATE Membership SET TotalAmount = TotalAmount + ? WHERE PhoneNumber = ?";
+            if (sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
                 return false;
             }
-
-            sqlite3_bind_int(stmt, 1, currentCount);
+            sqlite3_bind_int(stmt, 1, orderAmount);
             sqlite3_bind_text(stmt, 2, phoneNumber.c_str(), -1, SQLITE_STATIC);
-
-            result = sqlite3_step(stmt);
         }
-        else if (result == SQLITE_DONE) {
-            // 주문이 존재하지 않는 경우, 새로운 행을 만듦
+        else {
+            // New customer, insert a new row
             sqlite3_finalize(stmt);
 
-            query = "INSERT INTO orders (phone_number, order_count) VALUES (?, 1)";
-            result = sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, nullptr);
-            if (result != SQLITE_OK) {
-                std::cerr << "쿼리 준비 실패: " << sqlite3_errmsg(db) << std::endl;
+            sql = "INSERT INTO Membership (PhoneNumber, TotalAmount) VALUES (?, ?)";
+            if (sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
                 return false;
             }
-
             sqlite3_bind_text(stmt, 1, phoneNumber.c_str(), -1, SQLITE_STATIC);
+            sqlite3_bind_int(stmt, 2, orderAmount);
+        }
 
-            result = sqlite3_step(stmt);
+        if (sqlite3_step(stmt) != SQLITE_DONE) {
+            sqlite3_finalize(stmt);
+            return false;
         }
 
         sqlite3_finalize(stmt);
-        return (result == SQLITE_DONE);
+        return true;
     }
 
+    int getCouponsAvailable(const std::string& phoneNumber) {
+        sqlite3_stmt* stmt;
+        std::string sql = "SELECT TotalAmount, CouponsUsed FROM Membership WHERE PhoneNumber = ?";
+
+        if (sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
+            return -1;
+        }
+
+        sqlite3_bind_text(stmt, 1, phoneNumber.c_str(), -1, SQLITE_STATIC);
+
+        if (sqlite3_step(stmt) == SQLITE_ROW) {
+            int totalAmount = sqlite3_column_int(stmt, 0);
+            int couponsUsed = sqlite3_column_int(stmt, 1);
+            sqlite3_finalize(stmt);
+
+            int couponsEarned = totalAmount / 20000;
+            return couponsEarned - couponsUsed;
+        }
+
+        sqlite3_finalize(stmt);
+        return -1;
+    }
+
+    bool useCoupon(const std::string& phoneNumber) {
+        sqlite3_stmt* stmt;
+        std::string sql = "SELECT CouponsUsed FROM Membership WHERE PhoneNumber = ?";
+
+        if (sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
+            return false;
+        }
+
+        sqlite3_bind_text(stmt, 1, phoneNumber.c_str(), -1, SQLITE_STATIC);
+
+        if (sqlite3_step(stmt) == SQLITE_ROW) {
+            // Customer exists, update their coupons used
+            int couponsUsed = sqlite3_column_int(stmt, 0);
+            sqlite3_finalize(stmt);
+
+            // Check if there are available coupons to use
+            if (getCouponsAvailable(phoneNumber) > 0) {
+                sql = "UPDATE Membership SET CouponsUsed = CouponsUsed + 1 WHERE PhoneNumber = ?";
+                if (sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
+                    return false;
+                }
+                sqlite3_bind_text(stmt, 1, phoneNumber.c_str(), -1, SQLITE_STATIC);
+            }
+            else {
+                // No available coupons to use
+                sqlite3_finalize(stmt);
+                return false;
+            }
+        }
+        else {
+            // No such customer exists
+            sqlite3_finalize(stmt);
+            return false;
+        }
+
+        if (sqlite3_step(stmt) != SQLITE_DONE) {
+            sqlite3_finalize(stmt);
+            return false;
+        }
+
+        sqlite3_finalize(stmt);
+        return true;
+    }
 
 };
+
+/*
+int main() {
+    MembershipDB db("membership.db");
+
+    if (!db.open()) {
+        std::cerr << "Failed to open the database." << std::endl;
+        return 1;
+    }
+
+    // 예시 사용법:
+    std::string phoneNumber = "010-1234-5678";
+    int orderAmount = 45000; // 주문 금액 예시
+
+    if (db.executeOrder(phoneNumber, orderAmount)) {
+        std::cout << "Order executed successfully." << std::endl;
+    }
+    else {
+        std::cerr << "Failed to execute order." << std::endl;
+    }
+
+    int coupons = db.getCouponsAvailable(phoneNumber);
+    std::cout << "Coupons available for " << phoneNumber << ": " << coupons << std::endl;
+
+    return 0;
+}
+*/
