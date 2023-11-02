@@ -85,7 +85,7 @@ int main()
 	admin Admin;
 	string password_IP = "";
 	tui::input_text input_ADMIN({ {20,2}, {0,0} });
-	input_ADMIN.setPositionInfo({ {0,0}, {10,50} });
+	input_ADMIN.setPositionInfo({ {0,0}, {5,15} });
 	bool wrongPassword = false;
 	bool isValidPW = true;
 	string date_admin;
@@ -272,6 +272,7 @@ int main()
 					if (regex_match(password_IP, pattern)) {
 						tab_key = 1;
 						isValidPW = true;
+						password_IV = password_IP;
 					}
 					else {
 						isValidPW = false;
