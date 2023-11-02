@@ -22,6 +22,14 @@ struct OrderInfo {
 		coupon_used = is_coupon_used;
 	}
 	~OrderInfo() {	}
+
+	int getTotalPrice() {
+		int totalPrice = 0;
+		for (auto iter = information.begin(); iter != information.end(); iter++) {
+			totalPrice += getMenuPrice(iter->first) * iter->second;
+		}
+		return totalPrice;
+	}
 };
 
 class Sell_UI {

@@ -19,9 +19,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <VCProjectVersion>17.0</VCProjectVersion>
+    <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{050e6c0f-9242-457b-8604-327c87d13be9}</ProjectGuid>
+    <ProjectGuid>{fd3e2228-7615-4460-ad6a-152ac4e15e5e}</ProjectGuid>
     <RootNamespace>Project1</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
@@ -105,6 +105,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalOptions>/std:c++17 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -119,6 +120,8 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalOptions>/std:c++17 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -128,59 +131,64 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\source\admin.h" />
-    <ClInclude Include="..\..\source\coupon.h" />
-    <ClInclude Include="..\..\source\customer.h" />
-    <ClInclude Include="..\..\source\filelog.h" />
-    <ClInclude Include="..\..\source\menu.h" />
-    <ClInclude Include="..\..\source\path.h" />
-    <ClInclude Include="..\..\source\queue.h" />
-    <ClInclude Include="..\..\source\report.h" />
-    <ClInclude Include="..\..\source\sell.h" />
-    <ClInclude Include="..\..\source\sqlite3.h" />
-    <ClInclude Include="..\..\source\TUI\tui.h" />
-    <ClInclude Include="..\..\source\TUI\tui_active_element.h" />
-    <ClInclude Include="..\..\source\TUI\tui_animation.h" />
-    <ClInclude Include="..\..\source\TUI\tui_appearance.h" />
-    <ClInclude Include="..\..\source\TUI\tui_bar.h" />
-    <ClInclude Include="..\..\source\TUI\tui_box.h" />
-    <ClInclude Include="..\..\source\TUI\tui_button.h" />
-    <ClInclude Include="..\..\source\TUI\tui_chart.h" />
-    <ClInclude Include="..\..\source\TUI\tui_color.h" />
-    <ClInclude Include="..\..\source\TUI\tui_drop_list.h" />
-    <ClInclude Include="..\..\source\TUI\tui_group.h" />
-    <ClInclude Include="..\..\source\TUI\tui_input.h" />
-    <ClInclude Include="..\..\source\TUI\tui_input_text.h" />
-    <ClInclude Include="..\..\source\TUI\tui_io.h" />
-    <ClInclude Include="..\..\source\TUI\tui_line.h" />
-    <ClInclude Include="..\..\source\TUI\tui_line_input.h" />
-    <ClInclude Include="..\..\source\TUI\tui_list.h" />
-    <ClInclude Include="..\..\source\TUI\tui_navigation_group.h" />
-    <ClInclude Include="..\..\source\TUI\tui_output.h" />
-    <ClInclude Include="..\..\source\TUI\tui_radio_button.h" />
-    <ClInclude Include="..\..\source\TUI\tui_rectangle.h" />
-    <ClInclude Include="..\..\source\TUI\tui_scroll.h" />
-    <ClInclude Include="..\..\source\TUI\tui_slider.h" />
-    <ClInclude Include="..\..\source\TUI\tui_surface.h" />
-    <ClInclude Include="..\..\source\TUI\tui_symbol.h" />
-    <ClInclude Include="..\..\source\TUI\tui_symbol_string.h" />
-    <ClInclude Include="..\..\source\TUI\tui_tabs.h" />
-    <ClInclude Include="..\..\source\TUI\tui_terminal_info.h" />
-    <ClInclude Include="..\..\source\TUI\tui_text.h" />
-    <ClInclude Include="..\..\source\TUI\tui_text_utils.h" />
-    <ClInclude Include="..\..\source\TUI\tui_time_frame.h" />
-    <ClInclude Include="..\..\source\TUI\tui_unicode_utils.h" />
-    <ClInclude Include="..\..\source\TUI\tui_vec2.h" />
-    <ClInclude Include="..\..\source\TUI\udata\grapheme_ranges.h" />
-    <ClInclude Include="..\..\source\TUI\udata\wide_ranges.h" />
+    <ClInclude Include="..\source\admin.h" />
+    <ClInclude Include="..\source\coupon.h" />
+    <ClInclude Include="..\source\customer.h" />
+    <ClInclude Include="..\source\filelog.h" />
+    <ClInclude Include="..\source\menu.h" />
+    <ClInclude Include="..\source\path.h" />
+    <ClInclude Include="..\source\queue.h" />
+    <ClInclude Include="..\source\report.h" />
+    <ClInclude Include="..\source\sell.h" />
+    <ClInclude Include="..\source\sqlite3.h" />
+    <ClInclude Include="..\source\TUI\tui.h" />
+    <ClInclude Include="..\source\TUI\tui_active_element.h" />
+    <ClInclude Include="..\source\TUI\tui_animation.h" />
+    <ClInclude Include="..\source\TUI\tui_appearance.h" />
+    <ClInclude Include="..\source\TUI\tui_bar.h" />
+    <ClInclude Include="..\source\TUI\tui_box.h" />
+    <ClInclude Include="..\source\TUI\tui_button.h" />
+    <ClInclude Include="..\source\TUI\tui_chart.h" />
+    <ClInclude Include="..\source\TUI\tui_color.h" />
+    <ClInclude Include="..\source\TUI\tui_drop_list.h" />
+    <ClInclude Include="..\source\TUI\tui_group.h" />
+    <ClInclude Include="..\source\TUI\tui_input.h" />
+    <ClInclude Include="..\source\TUI\tui_input_text.h" />
+    <ClInclude Include="..\source\TUI\tui_io.h" />
+    <ClInclude Include="..\source\TUI\tui_line.h" />
+    <ClInclude Include="..\source\TUI\tui_line_input.h" />
+    <ClInclude Include="..\source\TUI\tui_list.h" />
+    <ClInclude Include="..\source\TUI\tui_navigation_group.h" />
+    <ClInclude Include="..\source\TUI\tui_output.h" />
+    <ClInclude Include="..\source\TUI\tui_radio_button.h" />
+    <ClInclude Include="..\source\TUI\tui_rectangle.h" />
+    <ClInclude Include="..\source\TUI\tui_scroll.h" />
+    <ClInclude Include="..\source\TUI\tui_slider.h" />
+    <ClInclude Include="..\source\TUI\tui_surface.h" />
+    <ClInclude Include="..\source\TUI\tui_symbol.h" />
+    <ClInclude Include="..\source\TUI\tui_symbol_string.h" />
+    <ClInclude Include="..\source\TUI\tui_tabs.h" />
+    <ClInclude Include="..\source\TUI\tui_terminal_info.h" />
+    <ClInclude Include="..\source\TUI\tui_text.h" />
+    <ClInclude Include="..\source\TUI\tui_text_utils.h" />
+    <ClInclude Include="..\source\TUI\tui_time_frame.h" />
+    <ClInclude Include="..\source\TUI\tui_unicode_utils.h" />
+    <ClInclude Include="..\source\TUI\tui_vec2.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\source\main.cpp" />
-    <ClCompile Include="..\..\source\TUI\tui_box.cpp" />
-    <ClCompile Include="..\..\source\TUI\tui_input.cpp" />
-    <ClCompile Include="..\..\source\TUI\tui_output.cpp" />
-    <ClCompile Include="..\..\source\TUI\tui_terminal_info.cpp" />
-    <ClCompile Include="..\..\source\TUI\tui_unicode_utils.cpp" />
+    <ClCompile Include="..\source\main.cpp" />
+    <ClCompile Include="..\source\TUI\tui_box.cpp" />
+    <ClCompile Include="..\source\TUI\tui_input.cpp" />
+    <ClCompile Include="..\source\TUI\tui_output.cpp" />
+    <ClCompile Include="..\source\TUI\tui_terminal_info.cpp" />
+    <ClCompile Include="..\source\TUI\tui_unicode_utils.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\source\database\menuDB.CSV" />
+    <None Include="sqlite3.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="sqlite3.lib" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
