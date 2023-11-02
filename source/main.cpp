@@ -151,7 +151,7 @@ int main()
 				}
 				break;
 			}
-
+			break;
 		case 1:
 			queue.drawUI();
 			queue.printQueue();

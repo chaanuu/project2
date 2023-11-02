@@ -31,7 +31,7 @@ protected:
 
 
 public:
-	Queue_UI() {
+		Queue_UI() {
 		//Text to guide this Tab
 		guideText << tui::COLOR::LIGHTBLUE << "DELETE + [1-5]";
 		guideText += " to delete order gone out";
@@ -77,28 +77,28 @@ public:
 		//Text in Box1
 		textInBox1.setSizeInfo({ {0,0}, {88,14} });
 		textInBox1.setPositionInfo({ {0,1}, {4,4} });
-
+		
 
 		//Text in Box2
 
 		textInBox2.setSizeInfo({ {0,0}, {88,14} });
 		textInBox2.setPositionInfo({ {0,1}, {4,20} });
-
+	
 
 		//Text in Box3
 		textInBox3.setSizeInfo({ {0,0}, {88,14} });
 		textInBox3.setPositionInfo({ {0,1}, {4,40} });
-
+		
 
 		//Text in Box4
 		textInBox4.setSizeInfo({ {0,0}, {88,14} });
 		textInBox4.setPositionInfo({ {0,1}, {4,58} });
-
+	
 
 		//Text in Box5
 		textInBox5.setSizeInfo({ {0,0}, {88,14} });
 		textInBox5.setPositionInfo({ {0,1}, {4,76} });
-
+		
 
 
 	}
@@ -133,13 +133,13 @@ public:
 	}
 
 	void printQueue() {
-
+		
 		int i = 0;
 		tui::symbol_string currentLine;
 		// 출력할 주문 정보가 있을 경우
 		for (; i < QueueInfo.size() && i < 5; i++) {
-
-			std::string info = std::to_string(QueueInfo[i].number) + " ";
+			
+			std::string info = std::to_string(QueueInfo[i].number)+ " ";
 
 			for (const auto& pair : QueueInfo[i].information) {
 				int menuId = pair.first;
@@ -168,10 +168,10 @@ public:
 				textInBox5.setText(queueBoxText);
 				break;
 			}
-
+			
 			queueBoxText.clear();
 		}
-
+		
 
 		// 주문 큐에 있는 주문 수가 5개 미만인 경우, 나머지 박스를 비움
 		for (; i < 5; i++) {
@@ -193,12 +193,12 @@ public:
 				break;
 			}
 		}
-
-
+	
+		
 	}
 
 	void removeQueue() {
-
+		
 
 		if (tui::input::isKeyPressed(tui::input::KEY::F1)) {
 			removeQueue1();
@@ -216,7 +216,7 @@ public:
 			removeQueue5();
 		}
 	}
-
+	
 
 	void removeQueue1() {
 		if (QueueInfo.size() > 0) {
