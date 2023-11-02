@@ -89,14 +89,6 @@ public:
 		guide_use_coupon.setSizeInfo({ {0,5}, {30,0} });
 		guide_use_coupon.setPositionInfo({ {0,0}, {0,0}, {tui::POSITION::CENTER, tui::POSITION::CENTER} });
 		guide_use_coupon.setText(guideText_use_coupon);
-		
-		/*
-		//Text to show order process completed
-		succesful_order << tui::COLOR::LIGHTBLUE << "Order processed scuccesfully!";
-		guide_succesful_order.setSizeInfo({ { 1,20 }, {0, 0} });
-		guide_succesful_order.setPositionInfo({ {0,0}, {0,0}, {tui::POSITION::CENTER, tui::POSITION::CENTER} });
-		guide_succesful_order.setText(succesful_order);
-		*/
 
 		//Make Box for Order List
 		orderBox.setAppearance(tui::box_appearance::thin_line);
