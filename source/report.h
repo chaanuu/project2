@@ -32,10 +32,10 @@ public:
     static std::vector<std::string> readExistingFile();
 };
 
-std::string Report::folder = "../source/Daily/";
+std::string Report::folder = "../../source/Daily/";
 
 void Report::createMenucode() {
-    std::ifstream in("../source/database/menuDB.CSV");
+    std::ifstream in("../../source/database/menuDB.CSV");
     std::string s;
 
     while (in) {
@@ -50,7 +50,7 @@ Report::Report(std::string day) {
     createMenucode();
     Report::day = day;
     Report::name = day;
-    Report::folder = "../source/Daily/";
+    Report::folder = "../../source/Daily/";
 }
 
 void Report::newReportFile(std::string fileName) {
@@ -58,7 +58,7 @@ void Report::newReportFile(std::string fileName) {
 
     out << "0\n";
 
-    std::ifstream in("../source/database/menuDB.CSV");
+    std::ifstream in("../../source/database/menuDB.CSV");
     std::string s;
 
     while (in) {
@@ -144,7 +144,7 @@ std::vector<std::string>* Report::readFile(const std::string& str) {
 }
 
 std::vector<std::string>* Report::readLogfile(std::string orderNum) {
-    std::vector<std::string>* logs = readFile("../source/log/" + day + ".csv");
+    std::vector<std::string>* logs = readFile("../../source/log/" + day + ".csv");
     std::vector<std::string> logstr;
 
     for (std::vector<std::string>::reverse_iterator itr = logs->rbegin(); itr != logs->rend(); ++itr) {
@@ -196,7 +196,7 @@ tui::symbol_string Report::printReport() {
 std::vector<std::string> Report::readExistingFile() {
     std::vector<std::string> files;
     try {
-        for (const auto& entry : std::filesystem::directory_iterator(std::filesystem::current_path() / "../source/Daily")) {
+        for (const auto& entry : std::filesystem::directory_iterator(std::filesystem::current_path() / "../../source/Daily")) {
             std::cout << entry.path() << std::endl;
             files.push_back(entry.path().filename().string());
         }
@@ -211,7 +211,7 @@ std::vector<std::string> Report::readExistingFile() {
 
 class Report_UI {
 protected:
-    tui::list dayList;
+    tui::list* dayList;
     tui::box reportBox;
     tui::symbol_string report_string = "please select date";
     tui::text report;
@@ -220,8 +220,7 @@ protected:
 public:
     Report_UI() {
         //LIST default
-        dayList.setSizeInfo({ {0,0}, {30,75} });
-        dayList.setPositionInfo({ {0,1}, {3,6} });
+        setdayList();
 
         reportBox.setAppearance(tui::box_appearance::thin_line);
         reportBox.setSizeInfo({ {0,0}, {58,92} });
@@ -234,21 +233,30 @@ public:
         makeList();
     }
 
+    void setdayList() {
+        delete dayList;
+        dayList = new tui::list;
+
+        dayList->setSizeInfo({ {0,0}, {30,75} });
+        dayList->setPositionInfo({ {0,1}, {3,6} });
+    }
+
     void drawUI() {
-        tui::output::draw(dayList);
+        tui::output::draw(*dayList);
         tui::output::draw(reportBox);
         tui::output::draw(report);
 
-        dayList.activate();
+        dayList->activate();
     }
 
     void makeList() {
         std::vector<std::string> files = Report::readExistingFile();
         while (!files.empty()) {
+            setdayList();
             tui::symbol_string lastFile = files.back();  // 마지막 요소를 가져옴
             tui::list_entry entry(lastFile, tui::CHECK_STATE::NONCHECKABLE, nullptr, nullptr, nullptr);
             files.pop_back();               // 마지막 요소를 제거
-            dayList.addEntry(entry);
+            dayList->addEntry(entry);
         }
     }
 
@@ -258,8 +266,8 @@ public:
     }
 
     void load_report() {
-        int position = dayList.getCurrentPosition();
-        tui::list_entry currentEntry = this->dayList.getEntryAt(position);
+        int position = dayList->getCurrentPosition();
+        tui::list_entry currentEntry = dayList->getEntryAt(position);
         tui::symbol_string reportDay = currentEntry.getFileName();
         std::string fileName = reportDay.getStdString();
         Report report = Report(fileName);
