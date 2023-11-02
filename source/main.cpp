@@ -88,6 +88,7 @@ int main()
 	bool wrongPassword = false;
 	bool isValidPW = true;
 	string date_admin;
+	string password_IV = "12345678";
 	regex pattern(R"(^[0-9a-zA-Z]*$)");
 
 
@@ -205,7 +206,7 @@ int main()
 					tui::symbol_string temp_string = input_ADMIN.getText();
 					password_IP = temp_string.getStdString();
 					// 비밀번호 검사
-					if (Admin.checkPassword(password_IP)) {
+					if (password_IP == password_IV) {
 						tab_key = 1;
 						wrongPassword = false;
 					}
@@ -224,6 +225,7 @@ int main()
 					tab_key = 3;
 				}
 				if (tui::input::isKeyPressed(tui::input::KEY::ENTER)) {
+					tab_key = 0;
 					tabs.setSelected(0);
 				} 
 				break;
@@ -248,7 +250,7 @@ int main()
 					tui::symbol_string temp_string = input_ADMIN.getText();
 					password_IP = temp_string.getStdString();
 					// 비밀번호 검사
-					if (Admin.checkPassword(password_IP)) {
+					if (password_IP == password_IV) {
 						tab_key = 4;
 						wrongPassword = false;
 					}
