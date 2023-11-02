@@ -260,13 +260,14 @@ public:
 
     void makeList() {
         std::vector<std::string> files = Report::readExistingFile();
+        setdayList();
         while (!files.empty()) {
-            setdayList();
             tui::symbol_string lastFile = files.back();  // 마지막 요소를 가져옴
             tui::list_entry entry(lastFile, tui::CHECK_STATE::NONCHECKABLE, nullptr, nullptr, nullptr);
             files.pop_back();               // 마지막 요소를 제거
-            dayList->addEntry(entry);
+            dayList->insertEntryAt(entry, 0);
         }
+        dayList->update();
     }
 
     void update(Report& report_instance) {

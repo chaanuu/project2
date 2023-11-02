@@ -24,7 +24,8 @@ void process_order(string customerHP, Sell& sell, Report_UI& reportUI, Queue& qu
 	queue.addOrder(thisorder);
 	string log_filename = filelog(thisorder);
 	Report report = Report(log_filename);
-	if (isCouponUsed) db.executeOrder(customerHP, thisorder.getTotalPrice() - 1000);
+	if (customerHP == "");
+	else if (isCouponUsed) db.executeOrder(customerHP, thisorder.getTotalPrice() - 1000);
 	else db.executeOrder(customerHP, thisorder.getTotalPrice());
 	report.editReport(to_string(thisorder.number));
 	
