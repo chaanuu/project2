@@ -50,7 +50,7 @@ void Report::createMenucode() {
 Report::Report(std::string day) {
     createMenucode();
     Report::day = day;
-    //Report::name = day;
+    Report::name = day;
     Report::folder = SOURCE_FILE_LOCATION"Daily/";
 }
 
