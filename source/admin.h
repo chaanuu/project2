@@ -94,7 +94,7 @@ public:
     }
 
     void clear(string filename) {
-        std::string file_location = dir + filename;
+        std::string file_location = "../source/log/" + filename;
         if (fileExists(file_location)) {
             remove(file_location.c_str());
         }
