@@ -21,7 +21,7 @@ string changeNum(int num) {
     return temp;
 }
 
-std::string filelog(OrderInfo orderinfo) {
+std::string filelog(OrderInfo orderinfo, stirng customerHP) {
     //-------------------------------------------------------------------------------
     std::time_t time_now = std::chrono::system_clock::to_time_t(livetime());
     auto time_point = std::chrono::system_clock::to_time_t(livetime());
@@ -55,7 +55,7 @@ std::string filelog(OrderInfo orderinfo) {
             orderdata += "," + to_string(iter->first) + "," + to_string(iter->second);
             totalPrice += getMenuPrice(iter->first) * iter->second;
         }
-        outputFile << orderinfo.number << "," << date << "," << time  <<"," << to_string(totalPrice) << orderdata << "\n";
+        outputFile << orderinfo.number << "," << date << "," << time  <<"," << to_string(totalPrice) << orderdata << "," << customerHP << "\n";
 
 
         
