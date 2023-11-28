@@ -67,6 +67,36 @@ class DB {
     return records;
   }
 
+  unsigned int getCouponsAvailable(const string hpValue) {
+    unsigned int coupon_count = 0;
+    string currentDate = yyyymmdd(); // 현재 날짜 가져오기
+
+    // 7일 전 날짜 계산
+    tm ltm = {};
+    strptime(currentDate.c_str(), "%Y%m%d", &ltm); // 문자열을 tm 구조체로 변환
+
+   
+    ltm.tm_mday -= 7;
+    mktime(&ltm); 
+
+    stringstream ss;
+    ss << 1900 + ltm.tm_year;
+    ss << std::setw(2) << std::setfill('0') << 1 + ltm.tm_mon;
+    ss << std::setw(2) << std::setfill('0') << ltm.tm_mday;
+    string sevenDaysAgoDate = ss.str(); // 7일 전 날짜 문자열로 변환
+
+    string sql = "SELECT COUNT(*) FROM couponBook WHERE hp = '" + hpValue + "' AND exp >= '" + sevenDaysAgoDate + "'";
+    char* errMsg = nullptr;
+
+    if (sqlite3_exec(db, sql.c_str(), callback, &coupon_count, &errMsg) !=
+        SQLITE_OK) {
+        cerr << "SQL error: " << errMsg << endl;
+        sqlite3_free(errMsg);
+    }
+
+    return coupon_count;
+}
+
   unsigned int makeCoupon(const string hpValue) {
     unsigned int coupon_count = 0;
     unsigned int total = 0;
