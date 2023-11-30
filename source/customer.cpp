@@ -2,12 +2,10 @@
 
 using namespace std;
 
-
 class DB {
 private:
     sqlite3* db;
     std::string dbPath;
-    time_t now = time(nullptr);
 
     static int callback(void* data, int argc, char** argv, char** azColName) {
         auto* records = static_cast<vector<orderEntry>*>(data);
@@ -30,14 +28,32 @@ private:
         return 0;
     }
 
-    string yyyymmdd() {
+    string format_date(const tm& date) {
+        stringstream ss;
+        ss << 1900 + date.tm_year;
+        ss << setw(2) << setfill('0') << 1 + date.tm_mon;
+        ss << setw(2) << setfill('0') << date.tm_mday;
+        return ss.str();
+    }
+
+    string get_current_date() {
         time_t now = time(nullptr);
         tm* ltm = localtime(&now);
-        stringstream ss;
-        ss << 1900 + ltm->tm_year;
-        ss << std::setw(2) << std::setfill('0') << 1 + ltm->tm_mon;
-        ss << std::setw(2) << std::setfill('0') << ltm->tm_mday;
-        return ss.str();
+        return format_date(*ltm);
+    }
+
+    string get_date_plus_days(int days) {
+        time_t now = time(nullptr);
+        now += days * 24 * 3600; // 하루는 86400초 (24시간 * 60분 * 60초)
+        tm* ltm = localtime(&now);
+        return format_date(*ltm);
+    }
+
+    string get_date_minus_days(int days) {
+        time_t now = time(nullptr);
+        now -= days * 24 * 3600; // 하루는 86400초 (24시간 * 60분 * 60초)
+        tm* ltm = localtime(&now);
+        return format_date(*ltm);
     }
 
 public:
@@ -76,7 +92,8 @@ public:
         struct orderEntry editEntry;
 
         string sql;
-        string date = yyyymmdd();
+        string date = get_current_date();
+        string seven_days_later = get_date_plus_days(7);
         char* errMsg = nullptr;
 
         // 현재 주문 총액 구하기
@@ -86,7 +103,7 @@ public:
 
         // 쿠폰 추가하기
         coupon_count = total / 10000;
-        sql = "INSERT INTO couponBook (hp, exp) VALUES (" + hpValue + ", " + date +
+        sql = "INSERT INTO couponBook (hp, exp) VALUES (" + hpValue + ", " + seven_days_later +
             ")";
         for (int i = 0; i < coupon_count; i++) {
             if (sqlite3_exec(db, sql.c_str(), 0, 0, &errMsg) != SQLITE_OK) {
@@ -160,19 +177,7 @@ public:
     }
 
     void checkDB() {
-        string currentDate = yyyymmdd();  // 현재 날짜 가져오기
-
-        // 7일 전 날짜 계산
-        tm ltm = {};
-        strptime(currentDate.c_str(), "%Y%m%d", &ltm);  // 문자열을 tm 구조체로 변환
-        ltm.tm_mday -= 7;
-        mktime(&ltm);
-
-        stringstream ss;
-        ss << 1900 + ltm.tm_year;
-        ss << std::setw(2) << std::setfill('0') << 1 + ltm.tm_mon;
-        ss << std::setw(2) << std::setfill('0') << ltm.tm_mday;
-        string sevenDaysAgoDate = ss.str();  // 7일 전 날짜 문자열로 변환
+        string sevenDaysAgoDate = get_date_minus_days(7);  // 7일 전 날짜 문자열로 변환
 
         // orderLog 테이블에서 7일보다 이전인 기록 삭제
         string sql =

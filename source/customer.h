@@ -32,16 +32,6 @@ struct couponEntry {
 };
 
 class DB {
-private:
-    sqlite3* db;
-    string dbPath;
-
-    static int callback(void* data, int argc, char** argv, char** azColName);
-    static int callback2(void* data, int argc, char** argv, char** azColName);
-    static int callback3(void* data, int argc, char** argv, char** azColName);
-
-    string yyyymmdd();
-
 public:
     DB(const string& dbPath);
     ~DB();
@@ -51,4 +41,17 @@ public:
     vector<couponEntry> getCouponsAvailable(const string hpValue);
     void useCoupon(const string hpValue);
     void checkDB();
+
+private:
+    sqlite3* db;
+    string dbPath;
+
+    static int callback(void* data, int argc, char** argv, char** azColName);
+    static int callback2(void* data, int argc, char** argv, char** azColName);
+    static int callback3(void* data, int argc, char** argv, char** azColName);
+
+    string format_date(const tm& date);
+    string get_current_date();
+    string get_date_plus_days(int days);
+    string get_date_minus_days(int days);
 };
