@@ -22,7 +22,7 @@ bool IsPhoneNumberValid(const string& str) {
 void process_order(string customerHP, Sell& sell, Report_UI& reportUI, Queue& queue, MembershipDB& db, bool isCouponUsed) {
 	struct OrderInfo thisorder = sell.finish(customerHP, isCouponUsed); // USE THIS STRUCT IF NEEDED
 	queue.addOrder(thisorder);
-	string log_filename = filelog(thisorder);
+	string log_filename = filelog(thisorder, customerHP);
 	Report report = Report(log_filename);
 	if (customerHP == "");
 	else if (isCouponUsed) db.executeOrder(customerHP, thisorder.getTotalPrice() - 1000);

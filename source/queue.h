@@ -33,7 +33,7 @@ protected:
 public:
 		Queue_UI() {
 		//Text to guide this Tab
-		guideText << tui::COLOR::LIGHTBLUE << "DELETE + [1-5]";
+		guideText << tui::COLOR::LIGHTBLUE << "DELETE + [F1-F5]";
 		guideText += " to delete order gone out";
 		guide.setSizeInfo({ {0,2}, {50,1} });
 		guide.setPositionInfo({ {0,0}, {5,92} });
@@ -136,7 +136,7 @@ public:
 		
 		int i = 0;
 		tui::symbol_string currentLine;
-		// Ãâ·ÂÇÒ ÁÖ¹® Á¤º¸°¡ ÀÖÀ» °æ¿ì
+		// ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö¹ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
 		for (; i < QueueInfo.size() && i < 5; i++) {
 			
 			std::string info = std::to_string(QueueInfo[i].number)+ " ";
@@ -173,7 +173,7 @@ public:
 		}
 		
 
-		// ÁÖ¹® Å¥¿¡ ÀÖ´Â ÁÖ¹® ¼ö°¡ 5°³ ¹Ì¸¸ÀÎ °æ¿ì, ³ª¸ÓÁö ¹Ú½º¸¦ ºñ¿ò
+		// ï¿½Ö¹ï¿½ Å¥ï¿½ï¿½ ï¿½Ö´ï¿½ ï¿½Ö¹ï¿½ ï¿½ï¿½ï¿½ï¿½ 5ï¿½ï¿½ ï¿½Ì¸ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½, ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ú½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
 		for (; i < 5; i++) {
 			switch (i) {
 			case 0:

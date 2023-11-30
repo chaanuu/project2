@@ -262,9 +262,9 @@ public:
         std::vector<std::string> files = Report::readExistingFile();
         setdayList();
         while (!files.empty()) {
-            tui::symbol_string lastFile = files.back();  // ¸¶Áö¸· ¿ä¼Ò¸¦ °¡Á®¿È
+            tui::symbol_string lastFile = files.back();  // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ò¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
             tui::list_entry entry(lastFile, tui::CHECK_STATE::NONCHECKABLE, nullptr, nullptr, nullptr);
-            files.pop_back();               // ¸¶Áö¸· ¿ä¼Ò¸¦ Á¦°Å
+            files.pop_back();               // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ò¸ï¿½ ï¿½ï¿½ï¿½ï¿½
             dayList->insertEntryAt(entry, 0);
         }
         dayList->update();
