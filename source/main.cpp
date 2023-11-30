@@ -19,17 +19,17 @@ bool IsPhoneNumberValid(const string& str) {
 	return std::regex_match(str, pattern);
 }
 
-void process_order(string customerHP, Sell& sell, Report_UI& reportUI, Queue& queue, MembershipDB& db, bool isCouponUsed) {
+void process_order(string customerHP, Sell& sell, Report_UI& reportUI, Queue& queue, DB& db, bool isCouponUsed) {
 	struct OrderInfo thisorder = sell.finish(customerHP, isCouponUsed); // USE THIS STRUCT IF NEEDED
 	queue.addOrder(thisorder);
 	string log_filename = filelog(thisorder, customerHP);
-	Report report = Report(log_filename);
-	if (customerHP == "");
-	else if (isCouponUsed) db.executeOrder(customerHP, thisorder.getTotalPrice() - 1000);
-	else db.executeOrder(customerHP, thisorder.getTotalPrice());
-	report.editReport(to_string(thisorder.number));
+	// Report report = Report(log_filename);
 	
-	reportUI.makeList();
+	if (customerHP == "");
+	else if (isCouponUsed) db.appendOrder(customerHP, thisorder.getTotalPrice() - 1500);
+	else db.appendOrder(customerHP, thisorder.getTotalPrice());
+	// report.editReport(to_string(thisorder.number));
+	// reportUI.makeList();
 }
 
 int main()
@@ -37,11 +37,7 @@ int main()
 	read_MenuDB();
 	Sell sell;
 	Queue queue;
-	MembershipDB db = MembershipDB(SOURCE_FILE_LOCATION"couponbook.db");
-	if (!db.open()) {
-		std::cerr << "Failed to open the database." << std::endl;
-		return 1;
-	}
+	DB db = DB(SOURCE_FILE_LOCATION "database.db");
 	//Sleep(500);
 
 	//BOX
@@ -72,6 +68,7 @@ int main()
 	input_SELL.setPositionInfo({ {0,0}, {10,50} });
 	string customerHP = "/0";
 	tui::symbol_string input_txt;
+	vector<couponEntry> usable_coupon;
 
 	// variables for QUEUE tab
 	unsigned int queue_key = 0;
@@ -137,7 +134,8 @@ int main()
 					}
 					else if (IsPhoneNumberValid(customerHP)) {
 						wrongFormat = false;
-						coupons = db.getCouponsAvailable(customerHP); //여기를 쿠폰확인 함수로 수정
+						usable_coupon = db.getCouponsAvailable(customerHP);
+						coupons = usable_coupon.size();
 						if (coupons == 0) { // 쿠폰없음, 주문완료
 							sell_key = 0;
 							wrongFormat = false;
@@ -155,7 +153,7 @@ int main()
 				break;
 
 			case 2: //쿠폰 사용 여부 확인하기
-				sell.drawUI2(coupons);
+				sell.drawUI2(usable_coupon);
 				if (tui::input::isKeyPressed('Y') || tui::input::isKeyPressed('y')) { //쿠폰사용, 주문완료
 					sell_key = 0;
 					db.useCoupon(customerHP);
@@ -287,6 +285,6 @@ int main()
 		
 		tui::output::display();
 	}
-	db.~MembershipDB();
+	db.~DB();
 	return 0;
 }

@@ -21,7 +21,7 @@ string changeNum(int num) {
     return temp;
 }
 
-std::string filelog(OrderInfo orderinfo, stirng customerHP) {
+std::string filelog(OrderInfo orderinfo, string customerHP) {
     //-------------------------------------------------------------------------------
     std::time_t time_now = std::chrono::system_clock::to_time_t(livetime());
     auto time_point = std::chrono::system_clock::to_time_t(livetime());

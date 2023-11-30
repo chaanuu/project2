@@ -1,3 +1,5 @@
+
+/*
 #include"customer.h"
 
 using namespace std;
@@ -62,6 +64,7 @@ public:
             cerr << "Can't open database: " << sqlite3_errmsg(db) << endl;
             exit(0);
         }
+        checkDB();
     }
 
     ~DB() {
@@ -195,4 +198,16 @@ public:
             sqlite3_free(errMsg);
         }
     }
+
+    void appendOrder(string hp, int amount) {
+        string crrdate = get_current_date();
+        char* errMsg = nullptr;
+        std::string sql = "INSERT INTO orderLog (hp, amount, date) VALUES ('" + hp + "', " + to_string(amount) + ", '" + crrdate + "');";
+        if (sqlite3_exec(db, sql.c_str(), 0, 0, &errMsg) != SQLITE_OK) {
+            cerr << "SQL error: " << errMsg << endl;
+            sqlite3_free(errMsg);
+        }
+    }
 };
+
+*/

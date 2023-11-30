@@ -2,10 +2,12 @@
 
 #include "TUI/tui.h"
 #include "menu.h"
+#include "customer.h"
 
 #include <map>
 #include <tuple>
 #include <string>
+#include <vector>
 
 using namespace std;
 
@@ -145,9 +147,10 @@ public:
 
 	}
 
-	void drawUI2(unsigned int coupons) {
+	void drawUI2(vector<couponEntry> usable_coupon) {
 		guideText_use_coupon = "You have ";
-		guideText_use_coupon << tui::COLOR::LIGHTBLUE << to_string(coupons) << " coupons";
+		guideText_use_coupon << tui::COLOR::LIGHTBLUE << to_string(usable_coupon.size()) << " coupons";
+		guideText_use_coupon += "\nCoupon with the least expiration date is " + usable_coupon[0].exp;
 		guideText_use_coupon += "\nPress 'Y' to use, 'N' to not use.";
 		guide_use_coupon.setText(guideText_use_coupon);
 		tui::output::draw(guide_use_coupon);
