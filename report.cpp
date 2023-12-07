@@ -1,8 +1,3 @@
-#include "TUI/tui.h"
-#include "path.h"
-
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -11,6 +6,7 @@
 #include <ctime>
 #include <sstream>
 #include <filesystem>
+#define SOURCE_FILE_LOCATION "source/"
 
 class Report{
 public:
@@ -30,7 +26,7 @@ public:
     static std::vector<std::string> split(std::string str, char delimiter);
     bool testmenuDB(std::vector<std::string>* report);
 
-    tui::symbol_string printReport();
+    std::string printReport();
     static std::vector<std::string>* readExistingFile();
 };
 
@@ -45,6 +41,7 @@ void Report::createMenucode() {
         getline(in, s);
         menucode.push_back(std::stoi(s.substr(0, 4)));
     }
+    menucode.pop_back();
 
     in.close();
 }
@@ -77,11 +74,26 @@ void Report::editReport(std::string orderNum) {
     std::vector<std::string>* log = readLogfile(orderNum);
 
     std::vector<std::string>* files = readExistingFile();
+    int count = 0;
+    for(std::vector<std::string>::iterator itr = files->begin() ; itr!=files->end() ; ++itr) {
+        std::vector<std::string> vec = split((*itr), '/');
+        std::string filename = vec.back().substr(0, 8);
+        if (filename==day)
+            count++;
+    }
     
+    if (count==0)
+        newReportFile(name);
+    else if (count!=1)
+        name = day + "(" + std::to_string(count-1) + ")";
+
     std::vector<std::string>* reportstr = readFile(folder + name + ".csv");
 
     if (testmenuDB(reportstr)) {
-
+        delete reportstr;
+        name = day + "(" + std::to_string(count) + ")";
+        newReportFile(name);
+        reportstr = readFile(folder + name + ".csv");
     }
 
     std::vector<std::string>::iterator itr = log->begin();
@@ -116,10 +128,32 @@ void Report::editReport(std::string orderNum) {
 
     delete reportstr;
     delete log;
+    delete files;
 }
 
 bool Report::testmenuDB(std::vector<std::string>* report) {
-    
+    createMenucode();
+    menucodeint = 0;
+    std::vector<std::string>* menucodestr = readFile(SOURCE_FILE_LOCATION"database/menuDB.CSV");
+
+    if (menucode.size()!=report->size()-1)
+        return true;
+
+    for(std::vector<std::string>::iterator it = report->begin() + 1; it!=report->end(); ++it) {
+        std::vector<std::string> x = split((*it), ',');
+        if(menucode[menucodeint]!=std::stoi(x[0]))
+            return true;
+
+        std::vector<std::string> menucodestrstr = split((*menucodestr)[menucodeint], ',');
+        if(menucodestrstr[1]!=x[1])
+            return true;
+        if(menucodestrstr[2]!=x[2])
+            return true;
+
+        menucodeint++;
+    }
+
+    return false;
 }
 
 std::vector<std::string>* Report::readFile(const std::string& str) {
@@ -165,6 +199,7 @@ std::vector<std::string>* Report::readLogfile(std::string orderNum) {
         if (logstr[0] == orderNum)
             break;
     }
+    logstr.pop_back();
 
     std::vector<std::string>* reportlog = new std::vector<std::string>();
     reportlog->push_back(logstr[3]);
@@ -189,10 +224,10 @@ std::vector<std::string> Report::split(std::string input, char delimiter) {
     return answer;
 }
 
-tui::symbol_string Report::printReport() {
+std::string Report::printReport() {
     std::vector<std::string>* reportstr = readFile(folder + name + ".csv");
 
-    tui::symbol_string returnstr = "Total Revenue : " + (*reportstr)[0] + "\n";
+    std::string returnstr = "Total Revenue : " + (*reportstr)[0] + "\n";
     int category = 0;
     for (std::vector<std::string>::iterator itr = reportstr->begin() + 1; itr != reportstr->end(); ++itr) {
         std::vector<std::string> splitstr = split(*itr, ',');
@@ -207,7 +242,7 @@ tui::symbol_string Report::printReport() {
 }
 
 std::vector<std::string>* Report::readExistingFile() {
-    std::vector<std::string>* files;
+    std::vector<std::string>* files = new std::vector<std::string>;
     try {
         for (const auto& entry : std::filesystem::directory_iterator(std::filesystem::current_path() / SOURCE_FILE_LOCATION"Daily")) {
             std::cout << entry.path() << std::endl;
@@ -222,69 +257,18 @@ std::vector<std::string>* Report::readExistingFile() {
     return files;
 }
 
-class Report_UI {
-protected:
-    tui::list* dayList;
-    tui::box reportBox;
-    tui::symbol_string report_string = "please select date";
-    tui::text report;
+int main(void) {
+    Report report = Report("20231102");
 
-    friend class Report;
-public:
-    Report_UI() {
-        //LIST default
-        setdayList();
+    report.editReport("5");
+    // std::vector<std::string>* files = Report::readExistingFile();
 
-        reportBox.setAppearance(tui::box_appearance::thin_line);
-        reportBox.setSizeInfo({ {0,0}, {58,92} });
-        reportBox.setPositionInfo({ {0,0}, {40,3} });
+    // for(std::vector<std::string>::iterator itr = files->begin() ; itr!=files->end() ; ++itr) {
+    //     std::vector<std::string> vec = Report::split((*itr), '/');
+    //     std::string filename = vec.back().substr(0, 8);
+    //     std::cout << filename << std::endl;
+    // }
 
-        report.setSizeInfo({ {0,0}, {55,90} });
-        report.setPositionInfo({ {0,0}, {42,5} });
-        report.setText(report_string);
-
-        makeList();
-    }
-
-    void setdayList() {
-        delete dayList;
-        dayList = new tui::list;
-
-        dayList->setSizeInfo({ {0,0}, {30,75} });
-        dayList->setPositionInfo({ {0,1}, {3,6} });
-    }
-
-    void drawUI() {
-        tui::output::draw(*dayList);
-        tui::output::draw(reportBox);
-        tui::output::draw(report);
-
-        dayList->activate();
-    }
-
-    void makeList() {
-        std::vector<std::string>* files = Report::readExistingFile();
-        setdayList();
-        while (!files->empty()) {
-            tui::symbol_string lastFile = files->back();  // ������ ��Ҹ� ������
-            tui::list_entry entry(lastFile, tui::CHECK_STATE::NONCHECKABLE, nullptr, nullptr, nullptr);
-            files->pop_back();               // ������ ��Ҹ� ����
-            dayList->insertEntryAt(entry, 0);
-        }
-        dayList->update();
-    }
-
-    void update(Report& report_instance) {
-        report_string = report_instance.printReport();
-        report.setText(report_string);
-    }
-
-    void load_report() {
-        int position = dayList->getCurrentPosition();
-        tui::list_entry currentEntry = dayList->getEntryAt(position);
-        tui::symbol_string reportDay = currentEntry.getFileName();
-        std::string fileName = reportDay.getStdString();
-        Report report = Report(fileName.substr(0, 8));
-        update(report);
-    }
-};
+    // delete files;
+    return 0;
+}
