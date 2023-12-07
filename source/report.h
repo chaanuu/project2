@@ -45,6 +45,7 @@ void Report::createMenucode() {
         getline(in, s);
         menucode.push_back(std::stoi(s.substr(0, 4)));
     }
+    menucode.pop_back();
 
     in.close();
 }
@@ -77,11 +78,26 @@ void Report::editReport(std::string orderNum) {
     std::vector<std::string>* log = readLogfile(orderNum);
 
     std::vector<std::string>* files = readExistingFile();
+    int count = 0;
+    for(std::vector<std::string>::iterator itr = files->begin() ; itr!=files->end() ; ++itr) {
+        std::vector<std::string> vec = split((*itr), '/');
+        std::string filename = vec.back().substr(0, 8);
+        if (filename==day)
+            count++;
+    }
     
+    if (count==0)
+        newReportFile(name);
+    else if (count!=1)
+        name = day + "(" + std::to_string(count-1) + ")";
+
     std::vector<std::string>* reportstr = readFile(folder + name + ".csv");
 
     if (testmenuDB(reportstr)) {
-
+        delete reportstr;
+        name = day + "(" + std::to_string(count) + ")";
+        newReportFile(name);
+        reportstr = readFile(folder + name + ".csv");
     }
 
     std::vector<std::string>::iterator itr = log->begin();
@@ -116,10 +132,32 @@ void Report::editReport(std::string orderNum) {
 
     delete reportstr;
     delete log;
+    delete files;
 }
 
 bool Report::testmenuDB(std::vector<std::string>* report) {
-    
+    createMenucode();
+    menucodeint = 0;
+    std::vector<std::string>* menucodestr = readFile(SOURCE_FILE_LOCATION"database/menuDB.CSV");
+
+    if (menucode.size()!=report->size()-1)
+        return true;
+
+    for(std::vector<std::string>::iterator it = report->begin() + 1; it!=report->end(); ++it) {
+        std::vector<std::string> x = split((*it), ',');
+        if(menucode[menucodeint]!=std::stoi(x[0]))
+            return true;
+
+        std::vector<std::string> menucodestrstr = split((*menucodestr)[menucodeint], ',');
+        if(menucodestrstr[1]!=x[1])
+            return true;
+        if(menucodestrstr[2]!=x[2])
+            return true;
+
+        menucodeint++;
+    }
+
+    return false;
 }
 
 std::vector<std::string>* Report::readFile(const std::string& str) {
@@ -165,6 +203,7 @@ std::vector<std::string>* Report::readLogfile(std::string orderNum) {
         if (logstr[0] == orderNum)
             break;
     }
+    logstr.pop_back();
 
     std::vector<std::string>* reportlog = new std::vector<std::string>();
     reportlog->push_back(logstr[3]);
@@ -207,7 +246,7 @@ tui::symbol_string Report::printReport() {
 }
 
 std::vector<std::string>* Report::readExistingFile() {
-    std::vector<std::string>* files;
+    std::vector<std::string>* files = new std::vector<std::string>;
     try {
         for (const auto& entry : std::filesystem::directory_iterator(std::filesystem::current_path() / SOURCE_FILE_LOCATION"Daily")) {
             std::cout << entry.path() << std::endl;
@@ -272,6 +311,8 @@ public:
             dayList->insertEntryAt(entry, 0);
         }
         dayList->update();
+
+        delete files;
     }
 
     void update(Report& report_instance) {
