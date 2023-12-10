@@ -258,9 +258,12 @@ std::vector<std::string>* Report::readExistingFile() {
 }
 
 int main(void) {
-    Report report = Report("20231102");
+    // Report report = Report("20231102");
 
-    report.editReport("5");
+    // report.editReport("5");
+
+    Report report = Report("20231217(1)");
+    std::cout << report.printReport() << std::endl;
     // std::vector<std::string>* files = Report::readExistingFile();
 
     // for(std::vector<std::string>::iterator itr = files->begin() ; itr!=files->end() ; ++itr) {

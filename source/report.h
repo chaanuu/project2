@@ -325,7 +325,8 @@ public:
         tui::list_entry currentEntry = dayList->getEntryAt(position);
         tui::symbol_string reportDay = currentEntry.getFileName();
         std::string fileName = reportDay.getStdString();
-        Report report = Report(fileName.substr(0, 8));
+        std::vector<std::string> fileNames = Report::split(filename, '.');
+        Report report = Report(fileNames[0]);
         update(report);
     }
 };
