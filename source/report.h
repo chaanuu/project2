@@ -325,8 +325,15 @@ public:
         tui::list_entry currentEntry = dayList->getEntryAt(position);
         tui::symbol_string reportDay = currentEntry.getFileName();
         std::string fileName = reportDay.getStdString();
-        std::vector<std::string> fileNames = Report::split(filename, '.');
-        Report report = Report(fileNames[0]);
-        update(report);
+        Report* report;
+        if (fileName.size() == 12) {
+            report = new Report(fileName.substr(0, 8));
+        }
+        else {
+            report = new Report(fileName.substr(0, 11));
+        }
+        update((*report));
+
+        delete report;
     }
 };
