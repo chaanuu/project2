@@ -203,6 +203,7 @@ public:
     void checkDB() {
 
         string sevenDaysAgoDate = get_date_minus_days(7);  // 7일 전 날짜 문자열로 변환
+        string currentDate = get_current_date();
         
         // orderLog 테이블에서 7일보다 이전인 기록 삭제
         string sql1 =
@@ -215,7 +216,7 @@ public:
         }
         
         // couponBook 테이블에서 7일보다 이전인 기록 삭제
-        string sql2 = "DELETE FROM couponBook WHERE exp <= '" + sevenDaysAgoDate + "'";
+        string sql2 = "DELETE FROM couponBook WHERE exp <= '" + currentDate + "'";
         if (sqlite3_exec(db, sql2.c_str(), 0, 0, &errMsg) != SQLITE_OK) {
             cerr << "SQL error: " << errMsg << endl;
             sqlite3_free(errMsg);
@@ -236,33 +237,3 @@ public:
         makeCoupon(hp);
     }
 };
-
-/*
-class DB {
-
-private:
-    sqlite3* db;
-    string dbPath;
-
-    static int callback(void* data, int argc, char** argv, char** azColName);
-    static int callback2(void* data, int argc, char** argv, char** azColName);
-    static int callback3(void* data, int argc, char** argv, char** azColName);
-
-    string format_date(const tm& date);
-    string get_current_date();
-    string get_date_plus_days(int days);
-    string get_date_minus_days(int days);
-
-public:
-    DB(const string& dbPath);
-    ~DB();
-
-    vector<orderEntry> getRecordsByHp(const string hpValue);
-    unsigned int makeCoupon(const string hpValue); // main.cpp
-    vector<couponEntry> getCouponsAvailable(const string hpValue);  
-    void useCoupon(const string hpValue); //main.cpp
-    void checkDB(); 
-    void appendOrder(string hp, int amount);
-
-};
-*/
