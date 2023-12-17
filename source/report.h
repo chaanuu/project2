@@ -12,7 +12,7 @@
 #include <sstream>
 #include <filesystem>
 
-class Report{
+class Report {
 public:
     std::vector<int> menucode;
     int menucodeint;

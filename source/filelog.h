@@ -55,10 +55,10 @@ std::string filelog(OrderInfo orderinfo, string customerHP) {
             orderdata += "," + to_string(iter->first) + "," + to_string(iter->second);
             totalPrice += getMenuPrice(iter->first) * iter->second;
         }
-        outputFile << orderinfo.number << "," << date << "," << time  <<"," << to_string(totalPrice) << orderdata << "," << customerHP << "\n";
-
-
-        
+        if(customerHP != "")
+            outputFile << orderinfo.number << "," << date << "," << time  <<"," << to_string(totalPrice) << orderdata << "," << customerHP << "\n";
+        else
+            outputFile << orderinfo.number << "," << date << "," << time << "," << to_string(totalPrice) << orderdata << ",0\n";
         outputFile.close();
     }
     return date;

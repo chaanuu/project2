@@ -23,13 +23,13 @@ void process_order(string customerHP, Sell& sell, Report_UI& reportUI, Queue& qu
 	struct OrderInfo thisorder = sell.finish(customerHP, isCouponUsed); // USE THIS STRUCT IF NEEDED
 	queue.addOrder(thisorder);
 	string log_filename = filelog(thisorder, customerHP);
-	// Report report = Report(log_filename);
+	Report report = Report(log_filename);
 	
 	if (customerHP == "");
 	else if (isCouponUsed) db.appendOrder(customerHP, thisorder.getTotalPrice() - 1500);
 	else db.appendOrder(customerHP, thisorder.getTotalPrice());
-	// report.editReport(to_string(thisorder.number));
-	// reportUI.makeList();
+	report.editReport(to_string(thisorder.number));
+	reportUI.makeList();
 }
 
 int main()
