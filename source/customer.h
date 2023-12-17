@@ -205,18 +205,18 @@ public:
         string sevenDaysAgoDate = get_date_minus_days(7);  // 7일 전 날짜 문자열로 변환
         
         // orderLog 테이블에서 7일보다 이전인 기록 삭제
-        string sql =
+        string sql1 =
             "DELETE FROM orderLog WHERE date <= '" + sevenDaysAgoDate + "'";
         char* errMsg = nullptr;
-        if (sqlite3_exec(db, sql.c_str(), 0, 0, &errMsg) != SQLITE_OK) {
+        if (sqlite3_exec(db, sql1.c_str(), 0, 0, &errMsg) != SQLITE_OK) {
             cerr << "SQL error: " << errMsg << endl;
             sqlite3_free(errMsg);
             system("pause");
         }
         
         // couponBook 테이블에서 7일보다 이전인 기록 삭제
-        sql = "DELETE FROM couponBook WHERE exp <= '" + sevenDaysAgoDate + "'";
-        if (sqlite3_exec(db, sql.c_str(), 0, 0, &errMsg) != SQLITE_OK) {
+        string sql2 = "DELETE FROM couponBook WHERE exp <= '" + sevenDaysAgoDate + "'";
+        if (sqlite3_exec(db, sql2.c_str(), 0, 0, &errMsg) != SQLITE_OK) {
             cerr << "SQL error: " << errMsg << endl;
             sqlite3_free(errMsg);
             system("pause");
